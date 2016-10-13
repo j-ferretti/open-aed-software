@@ -1,0 +1,10 @@
+**/Backup/
+**/codegentemp/
+**/Generated_Source/
+**/CortexM3/
+**/Export/
+*.cywrk.*
+*.rpt
+*.svd
+*.html
+*.cyprj.*
