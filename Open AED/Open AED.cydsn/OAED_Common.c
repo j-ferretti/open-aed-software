@@ -14,7 +14,7 @@
 int16 BufferECG[ECG_Data_size]      = {0};
 int16 DataECG[ECG_Data_size]        = {0};
 int16 BufferZ[Z_Data_size]          = {0};
-int32 DataZ[Z_Data_size]            = {0};
+int16 DataZ[Z_Data_size]            = {0};
 bool Event_flags[EVENT_NO]          = {false};
 double Patient_impedance            = 0;
 

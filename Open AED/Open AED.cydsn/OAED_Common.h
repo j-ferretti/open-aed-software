@@ -43,7 +43,7 @@
 extern int16 BufferECG[];                    // ECG Buffer
 extern int16 DataECG[];                      // ECG Data Vector
 extern int16 BufferZ[];                      // Z Buffer
-extern int32 DataZ[];                        // Z Data Vector
+extern int16 DataZ[];                        // Z Data Vector
 extern bool Event_flags[];                   // VT/VF Event Flags
 extern double Patient_impedance;             // Patient impedance
 
@@ -54,6 +54,7 @@ extern bool lead_detected;                   // Lead Detected
 extern bool ECG_data_pending;                // New ECG data available
 extern bool capacitor_ready;                 // Capacitor status
 extern bool ECG_enabled;                     // ECG acquisition status
+extern bool Z_enabled;                       // Z acqiuisition status
 
 
 /* System Status */

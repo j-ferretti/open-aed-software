@@ -13,8 +13,7 @@
 #include "OAED_Defibrillation.h"
 
 
-int main()
-{
+int main(){
     /* Local variables declaration */
     char Status = measurement_mode;
     uint8 false_positive_count = 0;
@@ -24,19 +23,21 @@ int main()
     CyGlobalIntEnable; /* Enable global interrupts. */
     
     /* Main Loop */
-    for(;;)
-    {
+    for(;;){
         OAED_SetSystemStatus(Status); //Enable or disable specific state functionalities
         
+        OAED_USBGetCommand();
+        
         switch(Status){
+            
             case lead_off:
                 /* Reset event data */
                 OAED_ResetEvent();
                 /* While in lead-off mode the system will wait for lead detection.  */
-                OAED_WaitLeadOn();
+                //OAED_WaitLeadOn();         // DEBUG PURPOSE ONLY //
                 
-                OAED_ZAcquisition();
-                OAED_WaitForZ();
+                //OAED_ZAcquisition();
+                //OAED_WaitForZ();     
                 
                 if(lead_detected)
                     Status = measurement_mode;

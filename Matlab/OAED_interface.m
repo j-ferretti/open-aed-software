@@ -26,11 +26,14 @@ while(true)
             continue;            
         case 'i'
             c = input('c ','s');
-            fwrite(s1,c);
-            while(s1.BytesAvailable == 0) end
-            while(s1.BytesAvailable ~= 0)
-                disp(char(fread(s1,s1.BytesAvailable))');
-                pause(0.1);
+            while(c ~= 'e')
+                fwrite(s1,c);
+                while(s1.BytesAvailable == 0) end
+                while(s1.BytesAvailable ~= 0)
+                    disp(char(fread(s1,s1.BytesAvailable))');
+                    pause(0.1);
+                end
+                c = input('c ','s');
             end
             continue;
     end
