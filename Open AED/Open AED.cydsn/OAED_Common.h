@@ -31,7 +31,7 @@
 #define ECG_sampling_f          250          // Sampling frequency of ECG signal
 #define ECG_Data_size           ECG_signal_length * ECG_sampling_f   
                                              // Size of ECG data/buffer vectors
-#define Z_Data_size             100          // Size of Z data/buffer vector at a constant rate of 100 sps (1 second total)
+#define Z_Data_size             125          // Size of Z data/buffer vector at a constant rate of 125 sps (1 second total)
 #define Z_min                   25           // Minimum impedance
 #define Z_max                   180          // Maximum impedance
 #define impedance_deviation     0.50         // Maximum deviation for impedance measurement

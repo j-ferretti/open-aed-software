@@ -179,7 +179,8 @@ void OAED_USBPrintSystemImage(){
     OAED_USBSendString(message);
     sprintf(message,"ECG_enabled        : %1d\n",ECG_enabled);
     OAED_USBSendString(message);
-    sprintf(message,"Patient Impedance  : %lf\n",Patient_impedance);
+    
+    sprintf(message,"Patient Impedance  : %ld\n",(int32)floor(Patient_impedance));
     OAED_USBSendString(message);
     
     OAED_USBSendString("\n");

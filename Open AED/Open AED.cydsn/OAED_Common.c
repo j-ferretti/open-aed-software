@@ -97,7 +97,7 @@ void OAED_CopyZBuffer(){
     /* re-initialized to zeroes.                    */
     uint16 i;
     
-    for(i = 0; i<Z_Data_size ; i++){
+    for(i = 0; i < Z_Data_size ; i++){
         DataZ[i] = (int32)BufferZ[i];
         BufferZ[i] = 0;
     }
@@ -358,15 +358,18 @@ bool OAED_EvaluateImpedance(){
     /* If the new impedance is outside the human limits it      */
     /* means that the electrodes may not be attached to the     */
     /* patient. Therefore we assume a lead-off.                 */
-    if(new_impedance < Z_min || new_impedance > Z_max){
+    /*if(new_impedance < Z_min || new_impedance > Z_max){
         Patient_impedance = 0;
         lead_detected = false;
         return false;
-    }
+    }*/
+    // DISABLED FOR DEBUG PURPOSE //
+    
     
     /* This is optional, but enabled by default.                */
     /* If the last acquisition was drastically different it is  */
     /* possible that the electrodes went off.                   */
+    /*
     if(Patient_impedance != 0){
         double imp_ratio = new_impedance / Patient_impedance;
         if(imp_ratio > 1 + impedance_deviation){
@@ -379,7 +382,7 @@ bool OAED_EvaluateImpedance(){
             lead_detected = false;
             return false;
         }
-    }
+    }*/
     
     /* If the impedance calculations are correct the old        */
     /* impedance is overwritten.                                */

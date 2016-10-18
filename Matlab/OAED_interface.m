@@ -1,5 +1,3 @@
-
-
 s1 = serial('COM9', 'Baudrate', 9600);
 count = 0;
 
@@ -35,6 +33,11 @@ while(true)
                     if(c == 'E')
                         ecg(count,(n + 1):floor(n + length(data)/2) ) = data(1:2:end) + bitshift(data(2:2:end),8);
                         ecg(count, floor(n + length(data)/2):(end)) = 0;
+                        n = n + length(data)/2;
+                    end
+                    if(c == 'Z')
+                        z(count,(n + 1):floor(n + length(data)/2) ) = data(1:2:end) + bitshift(data(2:2:end),8);
+                        z(count, floor(n + length(data)/2):(end)) = 0;
                         n = n + length(data)/2;
                     end
                     disp(char(data)');
