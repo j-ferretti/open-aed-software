@@ -47,7 +47,7 @@ int main(){
                 while(Status == measurement_mode){
                     /* While in measurement mode the system checks for, lead-off,   */
                     /* patient impedance and VT or VF.                              */
-                    
+                    OAED_USBGetCommand();
                     
                     /* Start ECG acquisition and check for lead-off */
                     if(!OAED_StartAcquisition()){

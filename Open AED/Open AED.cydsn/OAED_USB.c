@@ -221,6 +221,23 @@ void OAED_USBPrintSystemImage(){
     return;
 }
 
+void OAED_USBSendI(){
+    char message[USBFS_BUFFER_SIZE];
+    bool tmp;
+
+    OAED_USBPrintTimeStamp();
+    OAED_USBSendString("\n");
+    //tmp = CyPins_ReadPin(Comp_Pin_n) != 0;
+    tmp = Comp_n_GetCompare() != 0;
+    sprintf(message,"n-Comparator       : %1d\n",tmp);
+    OAED_USBSendString(message);
+    //tmp = CyPins_ReadPin(Comp_Pin_p) != 0;
+    tmp = Comp_p_GetCompare() != 0;
+    sprintf(message,"p-Comparator       : %1d\n",tmp);
+    OAED_USBSendString(message);
+    OAED_USBSendString("\n");
+}
+
 void OAED_USBSendSystemImage(){
     int16 data = 0;
     
@@ -324,10 +341,10 @@ bool OAED_USBGetCommand(){
     
     /* The first character is the command. */
     switch(message[0]){
-        case 'I':
-            /* Toggle Interactive mode. */
-            OAED_USBInteractiveMode();
-            return true;
+        //case 'I':
+          //  /* Toggle Interactive mode. */
+            //OAED_USBInteractiveMode();
+            //return true;
         case 'S':
             /* Send System State Flags. */
             OAED_USBSendSystemImage();
@@ -346,6 +363,9 @@ bool OAED_USBGetCommand(){
             return false;
         case 'K':
             OAED_USBPrintSystemImage();
+            return false;
+        case 'I':
+            OAED_USBSendI();
             return false;
         default:
             return false;

@@ -27,7 +27,7 @@
 
 /* Macro */
 #define OAED_USBSendData(data) OAED_USBSendData_impl(data, sizeof(data))
-#define OAED_USB_ECHO           true
+#define OAED_USB_ECHO           false
 
 /* Global variables */
 extern uint8 USB_buffer[USBFS_BUFFER_SIZE];     /* USB Buffer */

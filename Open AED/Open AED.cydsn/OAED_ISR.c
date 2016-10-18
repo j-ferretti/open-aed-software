@@ -26,11 +26,13 @@ CY_ISR(isr_LeadOff){
     isr_Lead_off_Disable();
     lead_detected = false;
     isr_Lead_on_Enable();
+    OAED_Led(false,false,false);
 }
 CY_ISR(isr_LeadOn){
     isr_Lead_on_Disable();
     lead_detected = true;
     isr_Lead_off_Enable();
+    OAED_Led(false,true,false);
 }
 
 /* CapReady and CapLow ISR custom call definition.              */
@@ -50,7 +52,7 @@ CY_ISR(isr_Defibrillation){
     /* Perform a biphasic defibrillation.                       */
     OAED_BiphasicDefibrillation(50);
     /* Reset Event data.                                        */
-    OAED_ResetEvent();
+    OAED_ResetEvent();      // Not sure about this
 }
 
 void OAED_ISR_Init(){
