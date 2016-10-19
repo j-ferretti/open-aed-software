@@ -32,6 +32,12 @@ extern int16 BufferZ[];
 #define DMA_DelSig_SRC_BASE (CYDEV_PERIPH_BASE)
 #define DMA_DelSig_DST_BASE (CYDEV_PERIPH_BASE)
 
+/* Defines for DMA_DelSig_1 */
+#define DMA_DelSig_1_BYTES_PER_BURST 2
+#define DMA_DelSig_1_REQUEST_PER_BURST 1
+#define DMA_DelSig_1_SRC_BASE (CYDEV_PERIPH_BASE)
+#define DMA_DelSig_1_DST_BASE (CYDEV_SRAM_BASE)
+
 /* Defines for DMA_Filter_A */
 #define DMA_Filter_A_BYTES_PER_BURST 2
 #define DMA_Filter_A_REQUEST_PER_BURST 1

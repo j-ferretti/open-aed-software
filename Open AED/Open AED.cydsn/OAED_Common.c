@@ -17,6 +17,7 @@ int16 BufferZ[Z_Data_size]          = {0};
 int16 DataZ[Z_Data_size]            = {0};
 bool Event_flags[EVENT_NO]          = {false};
 double Patient_impedance            = 0;
+int16 rawECG[ECG_Data_size]         = {0};
 
 /* Declaration of system flags */
 bool ECG_buffer_full                = false;

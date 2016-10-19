@@ -242,40 +242,40 @@ void OAED_USBSendI(){
 void OAED_USBSendSystemImage(){
     int16 data = 0;
     
-    data += ECG_buffer_full;
+    data += ECG_buffer_full !=0 ;
     
     data = data << 1;
-    data += Z_buffer_full;
+    data += Z_buffer_full !=0 ;
     
     data = data << 1;
-    data += lead_detected;
+    data += lead_detected !=0 ;
     
     data = data << 1;
-    data += ECG_data_pending;
+    data += ECG_data_pending !=0 ;
     
     data = data << 1;
-    data += capacitor_ready;
+    data += capacitor_ready !=0 ;
     
     data = data << 1;
-    data += ECG_enabled;
+    data += ECG_enabled !=0 ;
     
     data = data << 1;
-    data += Z_enabled;
+    data += Z_enabled !=0 ;
     
     data = data << 1;
-    data += CyPins_ReadPin(Charge_En_0);
+    data += CyPins_ReadPin(Charge_En_0) !=0 ;
     
     data = data << 1;
-    data += CyPins_ReadPin(Phase_Pin_Phi1);
+    data += CyPins_ReadPin(Phase_Pin_Phi1) !=0 ;
     
     data = data << 1;
-    data += CyPins_ReadPin(Phase_Pin_Phi2);
+    data += CyPins_ReadPin(Phase_Pin_Phi2) !=0 ;
     
     data = data << 1;
-    data += CyPins_ReadPin(Comp_Pin_p);
+    data += CyPins_ReadPin(Comp_Pin_p) !=0 ;
     
     data = data << 1;
-    data += CyPins_ReadPin(Comp_Pin_n);
+    data += CyPins_ReadPin(Comp_Pin_n) !=0 ;
     
     OAED_USBSendData16(&data,1);
     
@@ -286,6 +286,12 @@ void OAED_USBSendECG(){
     /* OAED_USBSendData need explicit definition of what is sending. */
     extern int16 DataECG[ECG_Data_size];
     OAED_USBSendData(DataECG);
+    return;
+}
+void OAED_USBSendraw(){
+    /* OAED_USBSendData need explicit definition of what is sending. */
+    extern int16 rawECG[ECG_Data_size];
+    OAED_USBSendData(rawECG);
     return;
 }
 
@@ -349,6 +355,9 @@ bool OAED_USBGetCommand(){
         case 'S':
             /* Send System State Flags. */
             OAED_USBSendSystemImage();
+            return false;
+        case 'R':
+            OAED_USBSendraw();
             return false;
         case 'E':
             /* Send ECG Data array. */

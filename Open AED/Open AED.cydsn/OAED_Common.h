@@ -28,7 +28,7 @@
 #define EVENT_NO                3            // Number of event registered
 #define POSITIVE_EVENT_NO       2            // Number of positive event required for defibrillation
 #define ECG_signal_length       4            // Seconds of signal registered
-#define ECG_sampling_f          250          // Sampling frequency of ECG signal
+#define ECG_sampling_f          500          // Sampling frequency of ECG signal
 #define ECG_Data_size           ECG_signal_length * ECG_sampling_f   
                                              // Size of ECG data/buffer vectors
 #define Z_Data_size             125          // Size of Z data/buffer vector at a constant rate of 125 sps (1 second total)
@@ -46,6 +46,7 @@ extern int16 BufferZ[];                      // Z Buffer
 extern int16 DataZ[];                        // Z Data Vector
 extern bool Event_flags[];                   // VT/VF Event Flags
 extern double Patient_impedance;             // Patient impedance
+extern int16 rawECG[];
 
 /* Declaration of system flags */
 extern bool ECG_buffer_full;                 // ECG Buffer Status
