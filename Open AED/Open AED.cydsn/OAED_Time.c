@@ -1,7 +1,7 @@
 /* ========================================
  *
  *  OPEN SOURCE AED
- * This file contains all time debug
+ * This file contains all time
  * function and global variable
  * definitions.
  *
@@ -16,16 +16,17 @@ char   TimeStamp[13];
 
 void OAED_InitTime(){
     uint8 i;
-    
+
     mscount = 0;
     seccount = 0;
     mincount = 0;
-    
-    /* Configure the SysTick timer to generate interrupt every 1 ms and start */
-    /* its operation. */
+
+    /* Configure the SysTick timer to generate interrupt every 1 ms and start
+       its operation.
+       */
     CySysTickStart();
 
-    /* Find unused callback slot and assign it to the custom callback.        */
+    /* Find unused callback slot and assign it to the custom callback. */
     for ( i = 0 ; i < CY_SYS_SYST_NUM_OF_CALLBACKS ; i++ ){
         if (CySysTickGetCallback(i) == NULL){
             /* Set callback */
@@ -33,7 +34,7 @@ void OAED_InitTime(){
             break;
         }
     }
-    
+
     return;
 }
 

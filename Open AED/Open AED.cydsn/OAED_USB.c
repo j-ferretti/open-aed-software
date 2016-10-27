@@ -12,18 +12,14 @@
 #include "OAED_USB.h"
 
 /* Declaration of global variables */
-uint8 OAED_USBbuffer[USBFS_BUFFER_SIZE];
-bool flag = false;
+bool flag = false;      // DEPRECATED
 
 /* Function declarations */
-    /* WARNING: Any Send/Print function is a blocking function. */
-
-
 void OAED_USBInit(){
-    
+
     USBUART_Start(USBFS_DEVICE, USBUART_5V_OPERATION);
     OAED_USBConfigure();
-    
+
     return;
 }
 
@@ -39,20 +35,23 @@ void OAED_USBConfigure(){
 void OAED_USBSendString(char message[]){
     /* Check USBUART configuration. */
     OAED_USBConfigure();
+
     /* Wait CDC to be ready. */
     while( USBUART_CDCIsReady() == 0 ){}
+
     /* Send the message. */
     USBUART_PutString(message);
     return;
 }
 
-void OAED_USBSendData_impl(void* data, size_t nsize){
+void OAED_USBSendDataVoid(void* data, size_t nsize){
     /* Used with macro OAED_USBSendData(data) defined on header.            */
-    
-    /* Treat any data type to int8.                                         */
-    /* If data type is wider than 8-bit is required a reconstruction on PC  */
-    /* side, on this purpose LSB is sent first and MSB last.                */
-    
+
+    /* Treat any data type as int8.
+       If data type is wider than 8-bit, it is required a reconstruction on PC
+       side. On this purpose LSB is sent first and MSB last.
+       */
+
     OAED_USBSendData8((int8*)data, nsize );
     return;
 }
@@ -60,89 +59,84 @@ void OAED_USBSendData_impl(void* data, size_t nsize){
 void OAED_USBSendData8(int8 message[], uint16 n){
     /* Check USBUART configuration. */
     OAED_USBConfigure();
-    
-    uint16 BC;              /* Byte count */
-    uint16 MI = 0;          /* Message index */
-    
+
+    uint16 BC;              // Byte count
+    uint16 MI = 0;          // Message index
+
     do{
         /* Wait cdc to be ready. */
         while( USBUART_CDCIsReady() == 0 ){}
-        
-        /* USBUART_PutData can only transfer 64 byte per call.              */
-        /* Everything else is lost, so we divide the messaga in 64 byte     */
-        /* packages.                                                        */
+
+        /* USBUART_PutData can only transfer 64 byte per call.
+           Everything else is lost, so we divide the message in 64 byte
+           packages.
+           */
         BC = (n>64) ? 64 : n;
-        
+
         /* Send message package. */
         USBUART_PutData( (const uint8*) &message[MI], BC);
-        
+
         /* Update the index and message dimension. */
         MI += BC;
         n -= BC;
-        
+
     }while(n>0); /* Repeat until the whole message is sent. */
-    
+
     return;
 }
 
-void OAED_USBSendData16(int16 message[], uint16 n){
-    /* Send data as 8-bit array. LSB first.         */
-    OAED_USBSendData8((int8*) message, 2*n);
-    /* USBUART only support 8-bit data transfer.    */
-    return;
-}
 
-void OAED_USBPrintECG(){
+void OAED_USBPrintECG(){    // DEPRECATED
     uint16 i;
     char message[USBFS_BUFFER_SIZE];
-    
+
     sprintf(message,"-- Data ECG\n");
     OAED_USBSendString(message);
-    
-    for( i = 0 ; i < ECG_Data_size ; i++ ){
+
+    for( i = 0 ; i < ECG_DATA_SIZE ; i++ ){
         sprintf(message,"%d - %d\n",i,DataECG[i]);
         OAED_USBSendString(message);
     }
     OAED_USBSendString("-- Data ECG\n");
-    
+
     return;
 }
 
-void OAED_USBPrintECGB(){
+void OAED_USBPrintECGB(){    // DEPRECATED
     uint16 i;
     char message[USBFS_BUFFER_SIZE];
-    
+
     sprintf(message,"-- Buffer ECG\n");
     OAED_USBSendString(message);
-    
-    for( i = 0 ; i < ECG_Data_size ; i++ ){
+
+    for( i = 0 ; i < ECG_DATA_SIZE ; i++ ){
         if(BufferECG[i] != 0){
             sprintf(message,"%d - %d\n",i,BufferECG[i]);
             OAED_USBSendString(message);
         }
     }
     OAED_USBSendString("-- Buffer ECG\n");
-    
+
     return;
 }
 
-void OAED_USBPrintZ(){
+void OAED_USBPrintZ(){    // DEPRECATED
     uint16 i;
     char message[USBFS_BUFFER_SIZE];
-    
+
     sprintf(message,"-- Data Z\n");
     OAED_USBSendString(message);
-    
-    for( i = 0 ; i < Z_Data_size ; i++ ){
+
+    for( i = 0 ; i < Z_DATA_SIZE ; i++ ){
         sprintf(message,"%d - %d\n",i,DataZ[i]);
         OAED_USBSendString(message);
     }
     OAED_USBSendString("\n");
-    
+
     return;
 }
 
-void OAED_USBPrintTimeStamp(){
+void OAED_USBPrintTimeStamp(){    // DEPRECATED BUT STILL IN USE
     #if(OAED_TIME)
     OAED_USBSendString("\n");
         OAED_GetTime();
@@ -152,17 +146,17 @@ void OAED_USBPrintTimeStamp(){
     return;
 }
 
-void OAED_USBPrintFlag(){
+void OAED_USBPrintFlag(){    // DEPRECATED
     char message[USBFS_BUFFER_SIZE];
     sprintf(message, "%1d\n", flag);
     OAED_USBSendString(message);
     return;
 }
 
-void OAED_USBPrintSystemImage(){
+void OAED_USBPrintSystemImage(){    // DEPRECATED BUT STILL IN USE
     char message[USBFS_BUFFER_SIZE];
     bool tmp;
-    
+
     OAED_USBPrintTimeStamp();
     OAED_USBSendString("\n");
     sprintf(message,"-- System Status\n");
@@ -179,10 +173,10 @@ void OAED_USBPrintSystemImage(){
     OAED_USBSendString(message);
     sprintf(message,"ECG_enabled        : %1d\n",ECG_enabled);
     OAED_USBSendString(message);
-    
+
     sprintf(message,"Patient Impedance  : %ld\n",(int32)floor(Patient_impedance));
     OAED_USBSendString(message);
-    
+
     OAED_USBSendString("\n");
     sprintf(message,"-- Pin Status\n");
     OAED_USBSendString(message);
@@ -217,12 +211,12 @@ void OAED_USBPrintSystemImage(){
     sprintf(message,"p-Comparator       : %1d\n",tmp);
     OAED_USBSendString(message);
     OAED_USBSendString("\n");
-    
-    
+
+
     return;
 }
 
-void OAED_USBSendI(){
+void OAED_USBSendI(){    // DEPRECATED
     char message[USBFS_BUFFER_SIZE];
     bool tmp;
 
@@ -241,71 +235,63 @@ void OAED_USBSendI(){
 
 void OAED_USBSendSystemImage(){
     int16 data = 0;
-    
-    data += ECG_buffer_full !=0 ;
-    
-    data = data << 1;
-    data += Z_buffer_full !=0 ;
-    
-    data = data << 1;
-    data += lead_detected !=0 ;
-    
-    data = data << 1;
-    data += ECG_data_pending !=0 ;
-    
-    data = data << 1;
-    data += capacitor_ready !=0 ;
-    
-    data = data << 1;
-    data += ECG_enabled !=0 ;
-    
-    data = data << 1;
-    data += Z_enabled !=0 ;
-    
-    data = data << 1;
-    data += CyPins_ReadPin(Charge_En_0) !=0 ;
-    
-    data = data << 1;
-    data += CyPins_ReadPin(Phase_Pin_Phi1) !=0 ;
-    
-    data = data << 1;
-    data += CyPins_ReadPin(Phase_Pin_Phi2) !=0 ;
-    
-    data = data << 1;
-    data += CyPins_ReadPin(Comp_Pin_p) !=0 ;
-    
-    data = data << 1;
-    data += CyPins_ReadPin(Comp_Pin_n) !=0 ;
-    
+
+    data = OAED_ShiftNAdd(data, ECG_buffer_full );
+
+    data = OAED_ShiftNAdd(data, Z_buffer_full );
+
+    data = OAED_ShiftNAdd(data, lead_detected );
+
+    data = OAED_ShiftNAdd(data, ECG_data_pending );
+
+    data = OAED_ShiftNAdd(data, capacitor_ready );
+
+    data = OAED_ShiftNAdd(data, ECG_enabled );
+
+    data = OAED_ShiftNAdd(data, Z_enabled );
+
+    data = OAED_ShiftNAdd(data, CyPins_ReadPin(Charge_En_0) !=0 );
+
+    data = OAED_ShiftNAdd(data, CyPins_ReadPin(Phase_Pin_Phi1) !=0 );
+
+    data = OAED_ShiftNAdd(data, CyPins_ReadPin(Phase_Pin_Phi2) !=0 );
+
+    data = OAED_ShiftNAdd(data, CyPins_ReadPin(Comp_Pin_p) !=0 );
+
+    data = OAED_ShiftNAdd(data, CyPins_ReadPin(Comp_Pin_n) !=0 );
+
     OAED_USBSendData16(&data,1);
-    
+
     return;
 }
 
 void OAED_USBSendECG(){
     /* OAED_USBSendData need explicit definition of what is sending. */
-    extern int16 DataECG[ECG_Data_size];
+    extern int16 DataECG[ECG_DATA_SIZE];
     OAED_USBSendData(DataECG);
     return;
 }
-void OAED_USBSendraw(){
+
+#if(RAW_MODE)
+void OAED_USBSendRAW(){
     /* OAED_USBSendData need explicit definition of what is sending. */
-    extern int16 rawECG[ECG_Data_size];
+    extern int16 rawECG[ECG_DATA_SIZE];
     OAED_USBSendData(rawECG);
     return;
 }
+#endif
 
 void OAED_USBSendZ(){
     /* OAED_USBSendData need explicit definition of what is sending. */
-    extern int16 DataZ[Z_Data_size];
+    extern int16 DataZ[Z_DATA_SIZE];
     OAED_USBSendData(DataZ);
     return;
 }
 
 void OAED_USBSendBuffer(){
     /* OAED_USBSendData need explicit definition of what is sending. */
-    extern int16 BufferECG[ECG_Data_size];
-    extern int16 BufferZ[Z_Data_size];
+    extern int16 BufferECG[ECG_DATA_SIZE];
+    extern int16 BufferZ[Z_DATA_SIZE];
     OAED_USBSendData(BufferECG);
     OAED_USBSendData(BufferZ);
     return;
@@ -314,17 +300,17 @@ void OAED_USBSendBuffer(){
 uint16 OAED_USBGetData(uint8 message[], bool echo){
     /* Check USBUART configuration. */
     OAED_USBConfigure();
-    
-    /* This is a non-blocking function, so long there's no data to get.     */
+
+    /* This is a non-blocking function, so long there's no data to get. */
     if( USBUART_DataIsReady() == 0 ){
         return 0;
     }
-    
+
     uint16 count;
-    
+
     /* Get data. */
     count = USBUART_GetAll(message);
-    
+
     /* Echo the message received. */
     if(echo){
         char command;
@@ -339,25 +325,21 @@ uint16 OAED_USBGetData(uint8 message[], bool echo){
 bool OAED_USBGetCommand(){
     uint16 count;
     uint8 message[USBFS_BUFFER_SIZE] = {' '};
-    
+
     /* Fetch data. */
     count = OAED_USBGetData(message, OAED_USB_ECHO);
-    
+
     /* This is a non-blocking function, so long there's no data to get.     */
     if(count == 0) return false;
-    
-    /* The first character is the command. */
+
+    /* The first character is reserved for the command. */
     switch(message[0]){
-        //case 'I':
-          //  /* Toggle Interactive mode. */
-            //OAED_USBInteractiveMode();
-            //return true;
         case 'S':
             /* Send System State Flags. */
             OAED_USBSendSystemImage();
             return false;
         case 'R':
-            OAED_USBSendraw();
+            OAED_USBSendRAW();
             return false;
         case 'E':
             /* Send ECG Data array. */
@@ -372,37 +354,46 @@ bool OAED_USBGetCommand(){
             OAED_USBSendBuffer();
             return false;
         case 'K':
+            /* Print System image as string. */
             OAED_USBPrintSystemImage();
+            return false;
+        case 'A':
+            /* Send both ECG and RAW data */
+            OAED_USBSendECG();
+            OAED_USBSendRAW();
             return false;
         case 'I':
             OAED_USBSendI();
             return false;
+        //case 'I':
+          //  /* Toggle Interactive mode. */
+            //OAED_USBInteractiveMode();
+            //return true;
         default:
             return false;
     }
-    
+
     return false;
 }
 
 void OAED_USBInteractiveMode(){
     /* WARNING: This function is only for debug and instruction purpose.    */
     /* WARNING: this is a blocking function.                                */
-    
+
     static bool Imode = false;
-    
+
     /* If already in Imode return. */
     if(Imode) return;
-    
+
     /* Set Imode On. */
     Imode = true;
-    
+
     /* Repeat until toggle interactive mode off. */
     while(!OAED_USBGetCommand()){}
-    
+
     /* Set Imode Off. */
     Imode = false;
     return;
 }
-
 
 /* [] END OF FILE */

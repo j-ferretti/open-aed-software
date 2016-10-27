@@ -53,9 +53,32 @@ while(true)
                 end
                 
                 c = input('c ','s');
+                
                 if(c == 'e')
                     break;
                 end
+                if(c == 'A' || c == 'a')
+                    count = 0;
+                    while( count<5 )
+                        disp(count);
+                        data = get_data('S', s1);
+                        if(isnan(data))
+                            continue;
+                        end
+                        disp(dec2bin(data));
+                        if(~bitget(data,1) && ~bitget(data,2))
+                            data = get_data('A', s1);
+                            ecgn = ecgn+1;
+                            ecg(ecgn,:) = data(1:2000);
+                            rn = rn+1;
+                            recg(rn,:) = data(2001:4000);
+                            count = count+1;
+                        end
+                    end
+                    ecg_plot([ecg]);
+                    continue;
+                end
+                
                 data = get_data(c, s1);
                 if(isnan(data))
                     disp('Timeout');

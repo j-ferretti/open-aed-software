@@ -10,85 +10,107 @@
 
 #ifndef OAED_COMMON_H
 #define OAED_COMMON_H
-    
-/* Compilation Options */
-#define OAED_TIME               1            // Enable or disable time functionalities
 
+/* Compilation Options */
+#define OAED_TIME               true         // Enable or disable time
+                                             // functionalities.
+#define RAW_MODE                true         // Enable or disable raw ECG
+                                             // acquisition.
+/* End of compilation options */
+
+/* Include */
 #include <project.h>
 #include <stdbool.h>
+#include "OAED_Acquisition.h"
 #include "OAED_Defibrillation.h"
 #include "OAED_DMA.h"
 #include "OAED_ISR.h"
+#include "OAED_SystemStatus.h"
 #include "OAED_USB.h"
+#include "OAED_Wait.h"
 #if(OAED_TIME)
     #include "OAED_Time.h"
 #endif
+/* End of include */
 
 /* Numeric constants */
+/* Events */
 #define EVENT_NO                3            // Number of event registered
-#define POSITIVE_EVENT_NO       2            // Number of positive event required for defibrillation
-#define ECG_signal_length       4            // Seconds of signal registered
-#define ECG_sampling_f          500          // Sampling frequency of ECG signal
-#define ECG_Data_size           ECG_signal_length * ECG_sampling_f   
+#define POSITIVE_EVENT_NO       2            // Number of positive event
+                                             // required for defibrillation
+/* ECG */
+#define ECG_SIGNAL_LENGTH       4            // Seconds of signal registered [s]
+#define ECG_SAMPLING_F          500          // Sampling frequency of ECG signal
+                                             // [Hz]
+#define ECG_DATA_SIZE           ECG_SIGNAL_LENGTH * ECG_SAMPLING_F
                                              // Size of ECG data/buffer vectors
-#define Z_Data_size             125          // Size of Z data/buffer vector at a constant rate of 125 sps (1 second total)
-#define Z_min                   25           // Minimum impedance
-#define Z_max                   180          // Maximum impedance
-#define impedance_deviation     0.50         // Maximum deviation for impedance measurement
-#define C              (double) 0.00015      // Condensator capacity
-#define V              (double) 1700         // Maximum voltage
-#define U              (double) 216          // Maximum energy stored
+/* Impedance */
+#define Z_DATA_SIZE             125          // Size of Z data/buffer vector at
+                                             // a constant rate of 125 sps
+                                             // (1 second total) [Hz]
+#define Z_MIN                   25           // Minimum impedance [Ohm]
+#define Z_MAX                   180          // Maximum impedance [Ohm]
+#define IMPEDANCE_DEVIATION     0.50         // Maximum deviation for impedance
+                                             // measurement
+
+/* Hardware */
+#define C              (double) 0.00015      // Condensator capacity [F]
+#define V              (double) 1700         // Maximum voltage [V]
+#define U              (double) 200          // Target energy to deliver [J]
+#define U_MAX          (double) 216          // Maximum storable energy [J]
+
+/* End of numeric constants */
+
 
 /* Variable definitions */
+// Buffers
 extern int16 BufferECG[];                    // ECG Buffer
+extern int16 BufferECG[];                    // ECG Buffer
+// Data
 extern int16 DataECG[];                      // ECG Data Vector
-extern int16 BufferZ[];                      // Z Buffer
 extern int16 DataZ[];                        // Z Data Vector
-extern bool Event_flags[];                   // VT/VF Event Flags
+// Impedance
 extern double Patient_impedance;             // Patient impedance
-extern int16 rawECG[];
+// Raw data
+#if(RAW_MODE)
+    extern int16 rawECG[];                   // Raw ECG Data
+    extern int16 rawECGBuffer[];             // Raw ECG Buffer
+#endif
+/* End of variable definitions */
 
 /* Declaration of system flags */
 extern bool ECG_buffer_full;                 // ECG Buffer Status
 extern bool Z_buffer_full;                   // Z Buffer Status
-extern bool lead_detected;                   // Lead Detected
 extern bool ECG_data_pending;                // New ECG data available
-extern bool capacitor_ready;                 // Capacitor status
+
 extern bool ECG_enabled;                     // ECG acquisition status
-extern bool Z_enabled;                       // Z acqiuisition status
+extern bool Z_enabled;
 
+extern bool lead_detected;                   // Lead Detected
+extern bool capacitor_ready;                 // Capacitor status
 
-/* System Status */
-enum system_status { lead_off, measurement_mode ,
-    charging_capacitor , discharge_enabled ,
-    internal_discharge };
+extern bool Event_flags[];                   // VT/VF Event Flags
+
+/* End of system flags */
 
 /* Function prototypes */
 void OAED_Init();
+void OAED_InitFilter();
+
 void OAED_CopyECGBuffer();
 void OAED_CopyZBuffer();
+
 void OAED_Led(bool, bool, bool);
-void OAED_SetSystemStatus(char);
 
 void OAED_ResetEvent();
-bool OAED_EvaluateRhythm();
 bool OAED_CheckFlags();
+
+bool OAED_EvaluateRhythm();
 bool OAED_EvaluateImpedance();
-
-void OAED_WaitLeadOn();
-bool OAED_WaitForData();
-bool OAED_WaitForCap();
-void OAED_WaitForZ();
-
-bool OAED_StartAcquisition();
-void OAED_StopAcquisition();
-void OAED_ZAcquisition();
-
-void OAED_InitAcquisition();
-void OAED_InitFilter();
 
 void OAED_EnableChargingCircuit();
 void OAED_DisableChargingCircuit();
+/* End of function prototypes */
 
 #endif
 /* [] END OF FILE */

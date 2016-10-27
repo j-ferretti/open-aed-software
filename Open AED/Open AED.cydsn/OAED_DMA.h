@@ -10,22 +10,18 @@
 
 #ifndef OAED_DMA_H
 #define OAED_DMA_H
-    
+
+/* Include */
 #include <project.h>
 #include "OAED_Common.h"
-
-/* Function prototypes */
-void OAED_DMA_Init();
-void OAED_DMAECGStart();
-void OAED_DMAECGStop();
-void OAED_DMAZStart();
-void OAED_DMAZStop();
+/* End of Include*/
 
 /* Extern variable definition */
 extern int16 BufferECG[];
 extern int16 BufferZ[];
+/* End of extern variable definition */
 
-
+/* Numeric constants */
 /* Defines for DMA_DelSig */
 #define DMA_DelSig_BYTES_PER_BURST 2
 #define DMA_DelSig_REQUEST_PER_BURST 1
@@ -55,6 +51,15 @@ extern int16 BufferZ[];
 #define DMA_Impedance_REQUEST_PER_BURST 1
 #define DMA_Impedance_SRC_BASE (CYDEV_PERIPH_BASE)
 #define DMA_Impedance_DST_BASE (CYDEV_SRAM_BASE)
+/* End of numeric constants */
+
+/* Function prototypes */
+void OAED_DMA_Init();
+void OAED_DMAECGStart();
+void OAED_DMAECGStop();
+void OAED_DMAZStart();
+void OAED_DMAZStop();
+/* End of Function prototypes */
 
 #endif
 /* [] END OF FILE */
