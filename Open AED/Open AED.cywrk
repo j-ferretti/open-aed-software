@@ -3,13 +3,11 @@
 <!--This file is machine generated and read. It is not intended to be edited by hand.-->
 <!--Due to this, there is no schema for this file.-->
 <CyGuid_2867d519-54d2-4c01-9830-c51cb08bc3dd type_name="CyDesigner.Common.ProjMgmt.Model.CyPrjMgmtWorkspaceSerialize" version="5" xml_contents_version="3" name="Open AED" persistent="Open AED.cywrk" platform="NOT_USED">
-<current_project name=".\Filter.cydsn\Filter.cyprj" />
+<current_project name=".\Open AED.cydsn\Open AED.cyprj" />
 <wrkspc_folders />
 <files />
 <projects>
 <v>.\Open AED.cydsn\Open AED.cyprj</v>
-<v>.\Open AED_AFE.cydsn\Open AED_AFE.cyprj</v>
-<v>.\Open AED_AFE_Copy_01.cydsn\Open AED_AFE_Copy_01.cyprj</v>
 <v>.\Filter.cydsn\Filter.cyprj</v>
 </projects>
 <workspace_id v="30b775c1-e83a-4085-b2af-fd56c9990815" />

@@ -204,11 +204,13 @@ void OAED_USBPrintSystemImage(){    // DEPRECATED BUT STILL IN USE
     tmp = CyPins_ReadPin(Phase_Pin_Phi2) != 0;
     sprintf(message,"H-Bridge Phase 2   : %1d\n",tmp);
     OAED_USBSendString(message);
+    /*
     tmp = CyPins_ReadPin(Comp_Pin_n) != 0;
     sprintf(message,"n-Comparator       : %1d\n",tmp);
     OAED_USBSendString(message);
     tmp = CyPins_ReadPin(Comp_Pin_p) != 0;
     sprintf(message,"p-Comparator       : %1d\n",tmp);
+    */
     OAED_USBSendString(message);
     OAED_USBSendString("\n");
 
@@ -227,9 +229,11 @@ void OAED_USBSendI(){    // DEPRECATED
     sprintf(message,"n-Comparator       : %1d\n",tmp);
     OAED_USBSendString(message);
     //tmp = CyPins_ReadPin(Comp_Pin_p) != 0;
+    /*
     tmp = Comp_p_GetCompare() != 0;
     sprintf(message,"p-Comparator       : %1d\n",tmp);
     OAED_USBSendString(message);
+    */
     OAED_USBSendString("\n");
 }
 
@@ -256,9 +260,9 @@ void OAED_USBSendSystemImage(){
 
     data = OAED_ShiftNAdd(data, CyPins_ReadPin(Phase_Pin_Phi2) !=0 );
 
-    data = OAED_ShiftNAdd(data, CyPins_ReadPin(Comp_Pin_p) !=0 );
+    //data = OAED_ShiftNAdd(data, CyPins_ReadPin(Comp_Pin_p) !=0 );
 
-    data = OAED_ShiftNAdd(data, CyPins_ReadPin(Comp_Pin_n) !=0 );
+    //data = OAED_ShiftNAdd(data, CyPins_ReadPin(Comp_Pin_n) !=0 );
 
     OAED_USBSendData16(&data,1);
 

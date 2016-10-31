@@ -62,7 +62,6 @@ void OAED_Init(){
 }
 
 void OAED_InitFilter(){
-
     /* Init and start the filter component. */
     Filter_Start();
 

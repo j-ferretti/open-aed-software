@@ -16,11 +16,6 @@
 #include "OAED_Common.h"
 /* End of Include*/
 
-/* Extern variable definition */
-extern int16 BufferECG[];
-extern int16 BufferZ[];
-/* End of extern variable definition */
-
 /* Numeric constants */
 /* Defines for DMA_DelSig */
 #define DMA_DelSig_BYTES_PER_BURST 2
@@ -28,11 +23,13 @@ extern int16 BufferZ[];
 #define DMA_DelSig_SRC_BASE (CYDEV_PERIPH_BASE)
 #define DMA_DelSig_DST_BASE (CYDEV_PERIPH_BASE)
 
-/* Defines for DMA_DelSig_1 */
-#define DMA_DelSig_1_BYTES_PER_BURST 2
-#define DMA_DelSig_1_REQUEST_PER_BURST 1
-#define DMA_DelSig_1_SRC_BASE (CYDEV_PERIPH_BASE)
-#define DMA_DelSig_1_DST_BASE (CYDEV_SRAM_BASE)
+#if(RAW_MODE)
+/* Defines for DMA_DelSig_RAW */
+#define DMA_DelSig_RAW_BYTES_PER_BURST 2
+#define DMA_DelSig_RAW_REQUEST_PER_BURST 1
+#define DMA_DelSig_RAW_SRC_BASE (CYDEV_PERIPH_BASE)
+#define DMA_DelSig_RAW_DST_BASE (CYDEV_SRAM_BASE)
+#endif
 
 /* Defines for DMA_Filter_A */
 #define DMA_Filter_A_BYTES_PER_BURST 2

@@ -17,12 +17,6 @@
 #include "OAED_Defibrillation.h"
 /* End of Include */
 
-/* Extern variable definition */
-extern bool capacitor_ready;
-extern bool buffer_full;
-extern bool lead_detected;
-/* End of extern variable definition */
-
 /* Custom ISR prototypes */
 CY_ISR_PROTO(isr_BufferZRe);
 CY_ISR_PROTO(isr_BufferECGRe);

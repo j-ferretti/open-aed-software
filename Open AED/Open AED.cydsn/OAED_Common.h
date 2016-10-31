@@ -65,7 +65,7 @@
 /* Variable definitions */
 // Buffers
 extern int16 BufferECG[];                    // ECG Buffer
-extern int16 BufferECG[];                    // ECG Buffer
+extern int16 BufferZ[];                      // Z Buffer
 // Data
 extern int16 DataECG[];                      // ECG Data Vector
 extern int16 DataZ[];                        // Z Data Vector

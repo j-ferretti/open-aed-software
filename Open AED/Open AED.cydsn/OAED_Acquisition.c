@@ -22,7 +22,7 @@ void OAED_InitAcquisition(){
     IDAC_Source_Start();
 
     /* Start p and n lead-on/off comparators. */
-    Comp_p_Start();
+    //Comp_p_Start();
     Comp_n_Start();
 
     return;

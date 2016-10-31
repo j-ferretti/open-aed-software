@@ -14,9 +14,11 @@
 uint8 DMA_DelSig_Chan;
 uint8 DMA_DelSig_TD[1];
 
-/* Variable declarations for DMA_DelSig_1 */
-uint8 DMA_DelSig_1_Chan;
-uint8 DMA_DelSig_1_TD[1];
+#if(RAW_MODE)
+/* Variable declarations for DMA_DelSig_RAW */
+uint8 DMA_DelSig_RAW_Chan;
+uint8 DMA_DelSig_RAW_TD[1];
+#endif
 
 /* Variable declarations for DMA_Filter_A */
 uint8 DMA_Filter_A_Chan;
@@ -56,32 +58,31 @@ void OAED_DMA_Init(){
         DMA_DelSig_TD[0]
     );
 
-
-    /* DMA Configuration for DMA_DelSig_1 */
-    DMA_DelSig_1_Chan = DMA_DelSig_1_DmaInitialize(
-        DMA_DelSig_1_BYTES_PER_BURST,
-        DMA_DelSig_1_REQUEST_PER_BURST,
-        HI16(DMA_DelSig_1_SRC_BASE),
-        HI16(DMA_DelSig_1_DST_BASE)
+#if(RAW_MODE)
+    /* DMA Configuration for DMA_DelSig_RAW */
+    DMA_DelSig_RAW_Chan = DMA_DelSig_RAW_DmaInitialize(
+        DMA_DelSig_RAW_BYTES_PER_BURST,
+        DMA_DelSig_RAW_REQUEST_PER_BURST,
+        HI16(DMA_DelSig_RAW_SRC_BASE),
+        HI16(DMA_DelSig_RAW_DST_BASE)
     );
-    DMA_DelSig_1_TD[0] = CyDmaTdAllocate();
+    DMA_DelSig_RAW_TD[0] = CyDmaTdAllocate();
     CyDmaTdSetConfiguration(
-        DMA_DelSig_1_TD[0],
-        DMA_DelSig_1_BYTES_PER_BURST * ECG_DATA_SIZE,
-        DMA_DelSig_1_TD[0],
+        DMA_DelSig_RAW_TD[0],
+        DMA_DelSig_RAW_BYTES_PER_BURST * ECG_DATA_SIZE,
+        DMA_DelSig_RAW_TD[0],
         CY_DMA_TD_INC_DST_ADR
     );
     CyDmaTdSetAddress(
-        DMA_DelSig_1_TD[0],
+        DMA_DelSig_RAW_TD[0],
         LO16((uint32)ADC_DelSig_DEC_SAMP_PTR),
         LO16((uint32)rawECGBuffer)
     );
     CyDmaChSetInitialTd(
-        DMA_DelSig_1_Chan,
-        DMA_DelSig_1_TD[0]
+        DMA_DelSig_RAW_Chan,
+        DMA_DelSig_RAW_TD[0]
     );
-
-
+#endif
 
     /* DMA Configuration for DMA_Filter_A */
     DMA_Filter_A_Chan = DMA_Filter_A_DmaInitialize(
@@ -170,7 +171,7 @@ void OAED_DMAECGStart(){
     CyDmaChEnable(DMA_Filter_A_Chan, 1);
     CyDmaChEnable(DMA_Filter_B_Chan, 1);
 
-CyDmaChEnable(DMA_DelSig_1_Chan, 1);
+CyDmaChEnable(DMA_DelSig_RAW_Chan, 1);
     return;
 
 }
@@ -181,7 +182,7 @@ void OAED_DMAECGStop(){
     CyDmaChDisable(DMA_Filter_A_Chan);
     CyDmaChDisable(DMA_Filter_B_Chan);
 
-CyDmaChDisable(DMA_DelSig_1_Chan);
+CyDmaChDisable(DMA_DelSig_RAW_Chan);
     return;
 }
 
