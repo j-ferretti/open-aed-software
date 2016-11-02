@@ -19,7 +19,7 @@ void OAED_InitAcquisition(){
     /* Start IDAC source and drain for lead off detection. */
     /* This should also trigger the lead-on/off interrupt. */
     IDAC_Drain_Start();
-    IDAC_Source_Start();
+    //IDAC_Source_Start();
 
     /* Start p and n lead-on/off comparators. */
     //Comp_p_Start();

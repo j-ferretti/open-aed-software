@@ -49,71 +49,31 @@ ChA_FREG: dw 0x0202
 
 
 area data_b
-ChA_FIRST: dw    48544
-dw    97088
-dw    48544
-dw  5667224
-dw 14504351
-dw   186571
-dw   373143
-dw   186571
-dw  5884423
-dw 14256494
-dw   202257
-dw   404513
-dw   202257
-dw  5483151
-dw 14714406
-dw   177329
-dw   354658
-dw   177329
-dw  6137500
-dw 13967694
-dw   212863
-dw   425726
-dw   212863
-dw  5329787
-dw 14889418
-dw   206043
-dw   412086
-dw   206043
-dw  5205070
-dw 15031739
-dw   190131
-dw   380261
-dw   190131
-dw  5107300
-dw 15143310
-dw   207826
-dw   415652
-dw   207826
-dw  6429498
-dw 13634480
-dw   193976
-dw   387952
-dw   193976
-dw  5035133
-dw 15225663
-dw   176009
-dw   352018
-dw   176009
-dw  4987571
-dw 15279939
-dw   175176
-dw   350351
-dw   175176
-dw  4963954
-dw 15306890
-dw   238669
-dw   477338
-dw   238669
-dw  6763648
-dw 13253163
-dw  1008249
-dw  2016497
-dw  1008249
-dw  7143215
-ChA_LAST: dw 12820019
+ChA_FIRST: dw  1029174
+dw 15748042
+dw        0
+dw  4039090
+dw        0
+dw  2945151
+dw 12022485
+dw  2943491
+dw  5427284
+dw 13531474
+dw  4782157
+dw  9052421
+dw  4784853
+dw  6632650
+dw 13301038
+dw   162986
+dw   325972
+dw   162986
+dw  6206727
+dw 13888695
+dw   309589
+dw   619179
+dw   309589
+dw  5086903
+ChA_LAST: dw 15166586
 
 ChB_init:
 
@@ -138,7 +98,7 @@ acu(subf, incr) dmux(srm, srm) alu(add) mac(hold) jmpl(acubeq, ChB_finish)
 
 ChB_finish:
 
-acu(hold, hold) dmux(sa, sa) alu(hold) mac(hold) shift(L, 2)
+acu(hold, hold) dmux(sa, sa) alu(hold) mac(hold) shift(L, 0)
 acu(incr, hold) addr(0) dmux(sra, sa) alu(seta) mac(hold)write(bus)
 acu(hold, hold) dmux(sra, sra) alu(seta) mac(hold)write(da)
 acu(incr, hold) dmux(sa, sa) alu(hold) mac(hold) write(da) jmp(eob, ChB_EXIT)
@@ -152,66 +112,26 @@ ChB_FREG: dw 0x0202
 
 
 area data_b
-ChB_FIRST: dw  1019319
-dw 14738578
-dw  1019319
-dw  8151654
-dw 12814070
-dw  4065411
-dw  8646394
-dw  4065411
-dw  8127933
-dw 12837808
-dw  4055717
-dw  8665782
-dw  4055717
-dw  8108552
-dw 12857203
-dw  4048329
-dw  8680558
-dw  4048329
-dw  8093781
-dw 12871984
-dw  4043348
-dw  8690521
-dw  4043348
-dw  8083821
-dw 12881951
-dw  4091146
-dw  8594925
-dw  4091146
-dw  8179384
-dw 12786321
-dw  4040840
-dw  8695536
-dw  4040840
-dw  8078808
-dw 12886968
-dw  4106819
-dw  8563578
-dw  4106819
-dw  8210720
-dw 12754963
-dw  4124066
-dw  8529084
-dw  4124066
-dw  8245201
-dw 12720457
-dw  4142626
-dw  8491965
-dw  4142626
-dw  8282307
-dw 12683324
-dw  4162210
-dw  8452797
-dw  4162210
-dw  8321461
-dw 12644143
-dw  4182504
-dw  8412208
-dw  4182504
-dw  8362035
-ChB_LAST: dw 12603539
+ChB_FIRST: dw   155987
+dw 16465242
+dw   155987
+dw  3149564
+dw 13390371
+dw   623948
+dw 15529321
+dw   623948
+dw  3149564
+dw 13390371
+dw   592425
+dw  1184850
+dw   592425
+dw  1523445
+dw 13445863
+dw  2164920
+dw  4329839
+dw  2164920
+dw  1523445
+ChB_LAST: dw 13445863
 
 
 area acu

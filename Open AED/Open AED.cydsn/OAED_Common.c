@@ -18,6 +18,7 @@ int16 DataECG[ECG_DATA_SIZE]            = {0};
 int16 DataZ[Z_DATA_SIZE]                = {0};
 
 double Patient_impedance                = 0;
+
 #if(RAW_MODE)
     int16 rawECG[ECG_DATA_SIZE]         = {0};
     int16 rawECGBuffer[ECG_DATA_SIZE]   = {0};
@@ -56,6 +57,8 @@ void OAED_Init(){
     #if(OAED_TIME)
         OAED_InitTime();
     #endif
+
+    OAED_DMAADCStart();
 
     CyGlobalIntEnable;      /* Enable global interrupts. */
     return;
@@ -182,18 +185,26 @@ bool OAED_EvaluateImpedance(){
     /* patient_impedance variable. */
     /* This function return false if a lead off is assumed, otherwise true.*/
     uint16 i;
+    uint16 TempMax = 0;
     double new_impedance = 0;
+
+    /* Find maximum abolute value */
+    for( i=0; i<Z_DATA_SIZE ; i++){
+        if(fabs(DataZ[i]) > TempMax)
+            TempMax = fabs(DataZ[i]);
+    }
 
     /* Data Z contains voltages count used to evaluate the impedance. */
     for( i=0; i<Z_DATA_SIZE ; i++){
-        /* This loop convert all the ADC counts to uV and sum them all. */
-        new_impedance += (double)(ADC_DelSig_CountsTo_uVolts(DataZ[i]));
+        if(fabs(DataZ[i]) > 0.75 * TempMax)
+            /* This loop convert all the ADC counts to uV and sum them all. */
+            new_impedance += (double)(ADC_DelSig_CountsTo_uVolts(fabs(DataZ[i])));
     }
     /* Get the mean value. */
     new_impedance /= (double)Z_DATA_SIZE;
 
     /* Calculate the impedance from the IDAC current (expressed in 1/8 uA). */
-    new_impedance /= ( (double)(IDAC_Drain_Data) / 8 );
+    new_impedance /= ( (double)(IDAC_Drain_Data) * 2 / 8 );
 
     // DISABLED FOR DEBUG PURPOSE //
     /* If the new impedance is outside the human limits it means that the

@@ -21,6 +21,7 @@
 /* Include */
 #include <project.h>
 #include <stdbool.h>
+#include <math.h>
 #include "OAED_Acquisition.h"
 #include "OAED_Defibrillation.h"
 #include "OAED_DMA.h"
@@ -45,9 +46,11 @@
 #define ECG_DATA_SIZE           ECG_SIGNAL_LENGTH * ECG_SAMPLING_F
                                              // Size of ECG data/buffer vectors
 /* Impedance */
-#define Z_DATA_SIZE             125          // Size of Z data/buffer vector at
-                                             // a constant rate of 125 sps
-                                             // (1 second total) [Hz]
+#define Z_SIGNAL_LENGTH         1            // Seconds of signal registered [s]
+#define Z_SAMPLING_F            500          // Sampling frequency of Z signal
+                                             // [Hz]
+#define Z_DATA_SIZE             Z_SIGNAL_LENGTH * Z_SAMPLING_F
+                                             // Size of Z data/buffer vector
 #define Z_MIN                   25           // Minimum impedance [Ohm]
 #define Z_MAX                   180          // Maximum impedance [Ohm]
 #define IMPEDANCE_DEVIATION     0.50         // Maximum deviation for impedance
