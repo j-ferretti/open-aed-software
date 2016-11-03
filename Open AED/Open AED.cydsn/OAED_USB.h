@@ -27,8 +27,8 @@
 /* End of numeric constants */
 
 /* Macro */
-#define OAED_USBSendData(message) OAED_USBSendDataVoid(message, sizeof(message))
-#define OAED_USBSendData16(message,n) OAED_USBSendData8((int8*) message, 2*n)
+#define OAED_USBSendData(message) OAED_USBSendDataVoid(message, (uint16)(sizeof(message)))
+#define OAED_USBSendData16(message,n) OAED_USBSendData8((int8*) message, (uint16)(2*n))
 /* Send data as 8-bit array. LSB first. */
 
 #define OAED_ShiftNAdd(data,flag) (data << 1) + flag

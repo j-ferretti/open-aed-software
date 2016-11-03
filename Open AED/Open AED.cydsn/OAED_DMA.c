@@ -30,7 +30,7 @@ uint8 DMA_FilterECG_TD[1];
 
 /* Variable declarations for DMA_FilterZ */
 uint8 DMA_FilterZ_Chan;
-uint8 DMA_FilterZ_TD[1];
+uint8 DMA_FilterZ_TD[4];
 
 void OAED_DMA_Init(){
 
@@ -93,7 +93,7 @@ void OAED_DMA_Init(){
     DMA_DelSig_RAW_TD[0] = CyDmaTdAllocate();
     CyDmaTdSetConfiguration(
         DMA_DelSig_RAW_TD[0],
-        DMA_DelSig_RAW_BYTES_PER_BURST * ECG_DATA_SIZE,
+        16,
         DMA_DelSig_RAW_TD[0],
         CY_DMA_TD_INC_DST_ADR
     );
@@ -118,14 +118,14 @@ void OAED_DMA_Init(){
     DMA_FilterECG_TD[0] = CyDmaTdAllocate();
     CyDmaTdSetConfiguration(
         DMA_FilterECG_TD[0],
-        DMA_FilterECG_BYTES_PER_BURST * ECG_DATA_SIZE,
+        16,
         DMA_FilterECG_TD[0],
         DMA_FilterECG__TD_TERMOUT_EN | TD_INC_DST_ADR
     );
     CyDmaTdSetAddress(
         DMA_FilterECG_TD[0],
         LO16((uint32)Filter_HOLDA_PTR),
-        LO16((uint32)BufferECG)
+        LO16((uint32)CacheECG)
     );
     CyDmaChSetInitialTd(
         DMA_FilterECG_Chan,
@@ -140,16 +140,52 @@ void OAED_DMA_Init(){
         HI16(DMA_FilterZ_DST_BASE)
     );
     DMA_FilterZ_TD[0] = CyDmaTdAllocate();
+    DMA_FilterZ_TD[1] = CyDmaTdAllocate();
+    DMA_FilterZ_TD[2] = CyDmaTdAllocate();
+    DMA_FilterZ_TD[3] = CyDmaTdAllocate();
     CyDmaTdSetConfiguration(
         DMA_FilterZ_TD[0],
-        DMA_FilterZ_BYTES_PER_BURST * Z_DATA_SIZE,
-        DMA_FilterZ_TD[0],
-        DMA_FilterZ__TD_TERMOUT_EN | TD_INC_DST_ADR
+        (DMA_FilterZ_BYTES_PER_BURST * Z_DATA_SIZE) / 4,
+        DMA_FilterZ_TD[1],
+        TD_INC_DST_ADR
     );
     CyDmaTdSetAddress(
         DMA_FilterZ_TD[0],
         LO16((uint32)Filter_HOLDB_PTR),
         LO16((uint32)BufferZ)
+    );
+    CyDmaTdSetConfiguration(
+        DMA_FilterZ_TD[1],
+        (DMA_FilterZ_BYTES_PER_BURST * Z_DATA_SIZE) / 4,
+        DMA_FilterZ_TD[2],
+        TD_INC_DST_ADR
+    );
+    CyDmaTdSetAddress(
+        DMA_FilterZ_TD[1],
+        LO16((uint32)Filter_HOLDB_PTR),
+        LO16((uint32)(BufferZ + Z_DATA_SIZE / 4))
+    );
+    CyDmaTdSetConfiguration(
+        DMA_FilterZ_TD[2],
+        (DMA_FilterZ_BYTES_PER_BURST * Z_DATA_SIZE) / 4,
+        DMA_FilterZ_TD[3],
+        TD_INC_DST_ADR
+    );
+    CyDmaTdSetAddress(
+        DMA_FilterZ_TD[2],
+        LO16((uint32)Filter_HOLDB_PTR),
+        LO16((uint32)(BufferZ + Z_DATA_SIZE / 2))
+    );
+    CyDmaTdSetConfiguration(
+        DMA_FilterZ_TD[3],
+        (DMA_FilterZ_BYTES_PER_BURST * Z_DATA_SIZE) / 4,
+        DMA_FilterZ_TD[0],
+        DMA_FilterZ__TD_TERMOUT_EN | TD_INC_DST_ADR
+    );
+    CyDmaTdSetAddress(
+        DMA_FilterZ_TD[3],
+        LO16((uint32)Filter_HOLDB_PTR),
+        LO16((uint32)(BufferZ + Z_DATA_SIZE * 3 / 4))
     );
     CyDmaChSetInitialTd(
         DMA_FilterZ_Chan,

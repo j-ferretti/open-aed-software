@@ -10,9 +10,25 @@
 
 #include "OAED_ISR.h"
 
+/* Function Declarations */
+
 /* ECG Buffer Replenished ISR custom call definition. */
 CY_ISR(isr_BufferECGRe){
-    ECG_buffer_full = true;
+    static uint16 n = 0;
+    int32 t;
+    t = CacheECG[0];
+    t += CacheECG[1];
+    t += CacheECG[2];
+    t += CacheECG[3];
+    t += CacheECG[4];
+    t += CacheECG[5];
+    t += CacheECG[6];
+    t += CacheECG[7];
+    BufferECG[n++] = (int16)(t>>3);
+    if(n == 2000){
+        ECG_buffer_full = true;
+        n = 0;
+    }
 }
 
 /* Z Buffer Replenished ISR custom call definition. */
@@ -58,6 +74,7 @@ CY_ISR(isr_Defibrillation){
     OAED_ResetEvent();      // Not sure about this
 }
 
+/* ISR Init */
 void OAED_ISR_Init(){
 
     /* Disable the Delta Sigma ADC ISR as it is not required    */
@@ -77,5 +94,6 @@ void OAED_ISR_Init(){
 
     return;
 }
+/* End of function declarations */
 
 /* [] END OF FILE */

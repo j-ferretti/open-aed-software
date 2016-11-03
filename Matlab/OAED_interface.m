@@ -12,7 +12,7 @@ rn = 0;
 
 recg = zeros(1,2000);
 ecg = zeros(1,2000);
-z = zeros(1,500);
+z = zeros(1,4000);
 ecgb = zeros(1,2000);
 zb = zeros(1,1000);
 s = 0;

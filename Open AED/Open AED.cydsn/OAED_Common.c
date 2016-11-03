@@ -11,6 +11,9 @@
 #include "OAED_Common.h"
 
 /* Declaration of global variables */
+int16 CacheECG[8] = {0};
+int16 CacheRAW[8] = {0};
+
 int16 BufferECG[ECG_DATA_SIZE]          = {0};
 int16 BufferZ[Z_DATA_SIZE]              = {0};
 

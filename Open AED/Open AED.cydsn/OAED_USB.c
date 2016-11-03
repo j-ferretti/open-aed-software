@@ -288,7 +288,9 @@ void OAED_USBSendRAW(){
 void OAED_USBSendZ(){
     /* OAED_USBSendData need explicit definition of what is sending. */
     extern int16 DataZ[Z_DATA_SIZE];
-    OAED_USBSendData(DataZ);
+    //OAED_USBSendData(DataZ);
+    OAED_USBSendData16(DataZ,2000);
+    OAED_USBSendData16(DataZ+2000,2000);
     return;
 }
 
@@ -342,9 +344,11 @@ bool OAED_USBGetCommand(){
             /* Send System State Flags. */
             OAED_USBSendSystemImage();
             return false;
-        case 'R':
-            OAED_USBSendRAW();
-            return false;
+        #if(RAW_MODE)
+            case 'R':
+                OAED_USBSendRAW();
+                return false;
+        #endif
         case 'E':
             /* Send ECG Data array. */
             OAED_USBSendECG();
@@ -364,7 +368,9 @@ bool OAED_USBGetCommand(){
         case 'A':
             /* Send both ECG and RAW data */
             OAED_USBSendECG();
-            OAED_USBSendRAW();
+            #if(RAW_MODE)
+                OAED_USBSendRAW();
+            #endif
             return false;
         case 'I':
             OAED_USBSendI();

@@ -14,7 +14,7 @@
 /* Compilation Options */
 #define OAED_TIME               true         // Enable or disable time
                                              // functionalities.
-#define RAW_MODE                true         // Enable or disable raw ECG
+#define RAW_MODE                false         // Enable or disable raw ECG
                                              // acquisition.
 /* End of compilation options */
 
@@ -47,7 +47,7 @@
                                              // Size of ECG data/buffer vectors
 /* Impedance */
 #define Z_SIGNAL_LENGTH         1            // Seconds of signal registered [s]
-#define Z_SAMPLING_F            500          // Sampling frequency of Z signal
+#define Z_SAMPLING_F            4000          // Sampling frequency of Z signal
                                              // [Hz]
 #define Z_DATA_SIZE             Z_SIGNAL_LENGTH * Z_SAMPLING_F
                                              // Size of Z data/buffer vector
@@ -66,6 +66,9 @@
 
 
 /* Variable definitions */
+// Cache
+extern int16 CacheECG[];
+extern int16 CacheRAW[];
 // Buffers
 extern int16 BufferECG[];                    // ECG Buffer
 extern int16 BufferZ[];                      // Z Buffer

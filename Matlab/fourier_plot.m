@@ -10,5 +10,5 @@ function fourier_plot(sig, f)
     figure
     plot(fk,sig_fshift)
     figure
-    plot(fk,20*log(sig_fshift))
+    plot(fk,20*log10(sig_fshift))
 end
