@@ -20,9 +20,9 @@ uint32 OAED_EvaluateDischargeTime(){ // Possibly deprecated
 }
 
 void OAED_EnableDefibrillation(){
-    /* Stop ECG acquisition.*/
+    /* Pause ECG acquisition.*/
     if(ECG_enabled)
-        OAED_StopAcquisition();
+        OAED_AcquisitionECGPause();
 
     /* Switch inner and outer security relay. */
     CyPins_SetPin(Defibrillation_En_Inner);
@@ -45,28 +45,23 @@ void OAED_DisableDefibrillation(){
     return;
 }
 
-void OAED_ArmDefibrillator(){
+inline void OAED_ArmDefibrillator(){
     /* Enable defibrillator switch interrupt. */
     isr_Defibrillate_Enable();
-    return;
 }
 
-void OAED_DisarmDefibrillator(bool release_charge){
+inline void OAED_DisarmDefibrillator(bool release_charge){
+    /* Disable the protection resistor connection. */
+    OAED_HBridgeControl( OPEN_CIRCUIT );
+
     /* Disable defibrillator switch interrupt. */
     isr_Defibrillate_Disable();
 
-    /* If true, activate internal discharge. */
+    /* If required, activate internal discharge. */
     if(release_charge)
         OAED_InternalDischarge();
     return;
 }
-
-// Deprecated
-// Implemented as macro
-/*void OAED_HBridgeControl(uint8 phase){
-    Phase_Reg_Write( phase );
-    return;
-}*/
 
 void OAED_InternalDischarge(){
     /* Avoid any possibilities to release the charge to the patient.
@@ -145,7 +140,7 @@ void OAED_PolyphasicDefibrillation(uint8 phase_no){
     OAED_EnableDefibrillation();
 
     /* Start Defibrillation. */
-    Phase_Reg_Write( PHI_1 );
+    OAED_HBridgeControl( PHI_1 );
     /* Wait for the phase 1 charge to be delivered. */
     CyDelay(phase1_time);
 
@@ -156,9 +151,9 @@ void OAED_PolyphasicDefibrillation(uint8 phase_no){
     for( i=1; i<phase_no ; i++){
         /* Invert phase */
         if(i%2 == 1)
-            OAED_HBridgeControl(PHI_2);
+            OAED_HBridgeControl( PHI_2 );
         else
-            OAED_HBridgeControl(PHI_1);
+            OAED_HBridgeControl( PHI_1 );
         /* Wait for the charge to be delivered. */
         CyDelay(phasen_time);
         /* Stop Defibrillation. */
@@ -196,7 +191,7 @@ void OAED_BiphasicDefibrillation(uint8 phase_one_duty){
     OAED_HBridgeControl( OPEN_CIRCUIT );
     CyDelay(1);
     /* Invert phase */
-    Phase_Reg_Write(PHI_2);
+    OAED_HBridgeControl( PHI_2 );
     /* Wait for the phase 2 charge to be delivered. */
     CyDelay(phase2_time);
     /* Stop Defibrillation. */

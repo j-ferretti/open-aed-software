@@ -39,6 +39,9 @@
 #define EVENT_NO                3            // Number of event registered
 #define POSITIVE_EVENT_NO       2            // Number of positive event
                                              // required for defibrillation
+/* Cache */
+#define ECG_CACHE_SIZE          8            // ECG cache size
+#define RAW_CACHE_SIZE          8            // RAW cache size
 /* ECG */
 #define ECG_SIGNAL_LENGTH       4            // Seconds of signal registered [s]
 #define ECG_SAMPLING_F          500          // Sampling frequency of ECG signal
@@ -64,6 +67,10 @@
 
 /* End of numeric constants */
 
+/* Macro */
+#define OAED_PINCONTROL(on,pin) (on) ? CyPins_SetPin(pin) : CyPins_ClearPin(pin)
+/* End of macro */
+
 
 /* Variable definitions */
 // Cache
@@ -79,8 +86,8 @@ extern int16 DataZ[];                        // Z Data Vector
 extern double Patient_impedance;             // Patient impedance
 // Raw data
 #if(RAW_MODE)
-    extern int16 rawECG[];                   // Raw ECG Data
-    extern int16 rawECGBuffer[];             // Raw ECG Buffer
+    extern int16 DataRAW[];                   // Raw ECG Data
+    extern int16 BufferRAW[];             // Raw ECG Buffer
 #endif
 /* End of variable definitions */
 

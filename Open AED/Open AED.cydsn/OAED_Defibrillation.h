@@ -42,10 +42,9 @@
 void OEAD_EnableDefibrillation();   // Need new name
 void OAED_DisableDefibrillation();  // Same
 
-void OAED_ArmDefibrillator();
-void OAED_DisarmDefibrillator(bool);
+inline void OAED_ArmDefibrillator();
+inline void OAED_DisarmDefibrillator(bool);
 
-//void OAED_HBridgeControl(uint8);
 uint32 OAED_EvaluateDischargeTime();
 
 void OAED_InternalDischarge();

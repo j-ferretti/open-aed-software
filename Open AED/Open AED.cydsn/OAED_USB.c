@@ -260,13 +260,15 @@ void OAED_USBSendSystemImage(){
 
     data = OAED_ShiftNAdd(data, CyPins_ReadPin(Phase_Pin_Phi2) !=0 );
 
-    //data = OAED_ShiftNAdd(data, CyPins_ReadPin(Comp_Pin_p) !=0 );
-
     //data = OAED_ShiftNAdd(data, CyPins_ReadPin(Comp_Pin_n) !=0 );
 
     OAED_USBSendData16(&data,1);
 
     return;
+}
+
+inline int16 OAED_ShiftNAdd(int16 data, bool flag){
+    return (data<<1) + flag;
 }
 
 void OAED_USBSendECG(){
@@ -279,8 +281,8 @@ void OAED_USBSendECG(){
 #if(RAW_MODE)
 void OAED_USBSendRAW(){
     /* OAED_USBSendData need explicit definition of what is sending. */
-    extern int16 rawECG[ECG_DATA_SIZE];
-    OAED_USBSendData(rawECG);
+    extern int16 DataRAW[ECG_DATA_SIZE];
+    OAED_USBSendData(DataRAW);
     return;
 }
 #endif
@@ -387,6 +389,7 @@ bool OAED_USBGetCommand(){
 }
 
 void OAED_USBInteractiveMode(){
+    // NOT FULLY IMPLEMENTED YET, PROBABLY NEVER WILL
     /* WARNING: This function is only for debug and instruction purpose.    */
     /* WARNING: this is a blocking function.                                */
 

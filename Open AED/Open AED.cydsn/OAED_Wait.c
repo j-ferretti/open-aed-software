@@ -11,6 +11,8 @@
 #include "OAED_Wait.h"
 
 /* Function declarations */
+
+ // NEED REWORK //  // NEED REWORK //  // NEED REWORK //  // NEED REWORK //
 void OAED_WaitLeadOn(){
     /* ~~~ WARNING: THIS IS A BLOCKING FUNCTION ~~~ */
 
@@ -34,6 +36,7 @@ void OAED_WaitLeadOn(){
         OAED_Led(Led_Red, false, false);
     }
 }
+ // NEED REWORK //  // NEED REWORK //  // NEED REWORK //  // NEED REWORK //
 
 bool OAED_WaitForData(){
     /* ~~~ WARNING: THIS IS A BLOCKING FUNCTION ~~~ */
@@ -50,6 +53,7 @@ bool OAED_WaitForData(){
             OAED_CopyZBuffer();
             if(!OAED_EvaluateImpedance())
                 return false;
+            OAED_AcquisitionZ();
         }
         /* Wait 10 ms */
         CyDelay(10);
@@ -66,6 +70,7 @@ bool OAED_WaitForZ(){
 
     /* Return false if detect lead-off, otherwise return true. */
 
+    OAED_AcquisitionZ();
     /* Wait for data */
     while(!Z_buffer_full){
         if(!lead_detected)
@@ -92,6 +97,7 @@ bool OAED_WaitForCap(){
             OAED_CopyZBuffer();
             if(!OAED_EvaluateImpedance())
                 return false;
+            OAED_AcquisitionZ();
         }
         /* Check for capacitor ready */
         if(capacitor_ready)

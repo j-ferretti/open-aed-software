@@ -23,21 +23,22 @@ char OAED_LeadOffMode(){
 
     /* Stop ECG acquisition */
     if(ECG_enabled)
-        OAED_StopAcquisition();
+        OAED_AcquisitionECGStop();
 
     /* Then the system lock until leads are attached again. */
     //OAED_WaitLeadOn();         // DISABLED DEBUG PURPOSE ONLY //
 
     /* Another layer of protection is to evaluate the patient impedance. */
     /*                           // DISABLED DEBUG PURPOSE ONLY //
-    OAED_ZAcquisition();
     if(OAED_WaitForZ())
         return measurement_mode;
     */
 
     /* Leads detected */
-    if(lead_detected)
+    if(lead_detected){
+        OAED_AcquisitionECGStart();
         return measurement_mode;
+    }
 
     /* No leads detected */
     return lead_off;
@@ -49,7 +50,7 @@ char OAED_MeasurementMode(){
        */
 
     /* Start ECG acquisition and check for lead-off */
-    if(!OAED_StartAcquisition())
+    if(!OAED_AcquisitionECGUnpause())
         return lead_off;
 
     /* Check for new data */
@@ -64,9 +65,6 @@ char OAED_MeasurementMode(){
     if(!OAED_WaitForData())
         return lead_off;
 
-    /* Stop ECG acquisition */
-    OAED_StopAcquisition();
-
     /* Lead are still on and no VT/VF were found */
     return measurement_mode;
 }
@@ -80,7 +78,7 @@ char OAED_ChargingMode(){
     static uint8 false_positive_count = 0; /* Init the false positive counter */
 
     /* Start ECG acquisition and check for lead-off */
-    if(!OAED_StartAcquisition()){
+    if(!OAED_AcquisitionECGUnpause()){
         false_positive_count = 0;
         return internal_discharge;
         /* In case the system can't detect the leads on it activate the internal
@@ -105,7 +103,7 @@ char OAED_ChargingMode(){
     /* If VF/VT is detected the system wait for the capacitor to charge. */
     if(OAED_WaitForCap()){
         /* If the capacitor is charged before new data is available the system
-           switch to discharge enabled mode.
+           reset the positive count and switch to discharge enabled mode.
            */
         false_positive_count = 0;
         return discharge_enabled;
@@ -118,9 +116,6 @@ char OAED_ChargingMode(){
         return internal_discharge;
     }
 
-    /* Stop ECG acquisition */
-    OAED_StopAcquisition();
-
     return charging_capacitor;
 }
 
@@ -130,7 +125,7 @@ char OAED_DischargeEnabledMode(){
        */
 
     /* Start ECG acquisition and check for lead-off */
-    if(!OAED_StartAcquisition())
+    if(!OAED_AcquisitionECGUnpause())
         /* In case the system can't detect the leads on it activate the internal
            discharge to avoid possible hazardous situations.
            */
@@ -152,9 +147,6 @@ char OAED_DischargeEnabledMode(){
         /* In case of Lead-off */
         return internal_discharge;
 
-    /* Stop ECG acquisition */
-    OAED_StopAcquisition();
-
     /* Nothing relevant happened, the system remain in discharge enabled mode. */
     return discharge_enabled;
 }
@@ -165,8 +157,7 @@ char OAED_InternalDischargeMode(){
        */
 
     /* Stop ECG acquisition before releasing the charge. */
-    if(ECG_enabled)
-        OAED_StopAcquisition();
+    OAED_AcquisitionECGPause();
 
     /* Disarm and release the charge. */
     OAED_DisarmDefibrillator(true);
@@ -189,8 +180,6 @@ void OAED_SetSystemStatus(char Status){
         case charging_capacitor:
             OAED_Led(true, true, false);    // Red and yellow
 
-            /* Disarm the Defibrillator. */
-            OAED_DisarmDefibrillator(false);
             /* Enable charging circuit. */
             OAED_EnableChargingCircuit();
             return;

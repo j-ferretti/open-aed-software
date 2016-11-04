@@ -16,12 +16,20 @@
 #include "OAED_Common.h"
 /* End of include */
 
-/* Function prototypes */
-void OAED_InitAcquisition();
+/* Macro */
+/* Start ECG acquisition DMA. */
+#define OAED_AcquisitionECGStart() OAED_DMAECGStart()
+/* Stop ECG acquisition DMA, call this function only in lead-off mode. */
+#define OAED_AcquisitionECGStop() OAED_DMAECGStop()
+/* End of macro */
 
-bool OAED_StartAcquisition();
-void OAED_StopAcquisition();
-void OAED_ZAcquisition();
+/* Function prototypes */
+void OAED_AcquisitionInit();
+
+bool OAED_AcquisitionECGUnpause();
+inline void OAED_AcquisitionECGPause();
+
+void OAED_AcquisitionZ();
 /* End of function prototypes */
 
 #endif

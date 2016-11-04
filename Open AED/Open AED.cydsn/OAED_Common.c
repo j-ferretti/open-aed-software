@@ -11,8 +11,10 @@
 #include "OAED_Common.h"
 
 /* Declaration of global variables */
-int16 CacheECG[8] = {0};
-int16 CacheRAW[8] = {0};
+int16 CacheECG[ECG_CACHE_SIZE] = {0};
+#if(RAW_MODE)
+int16 CacheRAW[RAW_CACHE_SIZE] = {0};
+#endif
 
 int16 BufferECG[ECG_DATA_SIZE]          = {0};
 int16 BufferZ[Z_DATA_SIZE]              = {0};
@@ -23,8 +25,8 @@ int16 DataZ[Z_DATA_SIZE]                = {0};
 double Patient_impedance                = 0;
 
 #if(RAW_MODE)
-    int16 rawECG[ECG_DATA_SIZE]         = {0};
-    int16 rawECGBuffer[ECG_DATA_SIZE]   = {0};
+    int16 DataRAW[ECG_DATA_SIZE]        = {0};
+    int16 BufferRAW[ECG_DATA_SIZE]      = {0};
 #endif
 /* End of global variables declaration */
 
@@ -45,11 +47,11 @@ bool Event_flags[EVENT_NO]          = {false};
 /* Function declarations */
 void OAED_Init(){
 
-    OAED_InitAcquisition(); /* Initialize acquisition circuitery. */
-    OAED_InitFilter();      /* Initialize filter component. */
     OAED_DMA_Init();        /* DMA Initialization. */
-    OAED_ISR_Init();        /* ISR initialization. */
+    OAED_AcquisitionInit(); /* Initialize acquisition circuitery. */
+    OAED_InitFilter();      /* Initialize filter component. */
     OAED_ResetEvent();      /* Event data initialization. */
+    OAED_ISRInit();         /* ISR initialization. */
 
     /* Secure the defibrillation circuitery. */
     OAED_DisableChargingCircuit();
@@ -60,8 +62,6 @@ void OAED_Init(){
     #if(OAED_TIME)
         OAED_InitTime();
     #endif
-
-    OAED_DMAADCStart();
 
     CyGlobalIntEnable;      /* Enable global interrupts. */
     return;
@@ -89,11 +89,10 @@ void OAED_CopyECGBuffer(){
     for(i = 0; i < ECG_DATA_SIZE ; i++){
         /* ECG */
         DataECG[i] = BufferECG[i];
-        BufferECG[i] = 0;
 
         /* Raw ECG */
         #if(RAW_MODE)
-            rawECG[i] = rawECGBuffer[i];
+            DataRAW[i] = BufferRAW[i];
         #endif
     }
 
@@ -110,7 +109,6 @@ void OAED_CopyZBuffer(){
 
     for(i = 0; i < Z_DATA_SIZE ; i++){
         DataZ[i] = BufferZ[i];
-        BufferZ[i] = 0;
     }
 
     /* Set system flag */
@@ -121,21 +119,9 @@ void OAED_CopyZBuffer(){
 
 void OAED_Led(bool red, bool yellow, bool green){
     /* Set or clear pins according to the parameters. */
-    if(red)
-        CyPins_SetPin(Status_Led_Red);
-    else
-        CyPins_ClearPin(Status_Led_Red);
-
-    if(yellow)
-        CyPins_SetPin(Status_Led_Yellow);
-    else
-        CyPins_ClearPin(Status_Led_Yellow);
-
-    if(green)
-        CyPins_SetPin(Status_Led_Green);
-    else
-        CyPins_ClearPin(Status_Led_Green);
-
+    OAED_PINCONTROL(red, Status_Led_Red);
+    OAED_PINCONTROL(yellow, Status_Led_Yellow);
+    OAED_PINCONTROL(green, Status_Led_Green);
     return;
 }
 
@@ -248,13 +234,12 @@ bool OAED_EvaluateImpedance(){
 }
 
 void OAED_EnableChargingCircuit(){
-    /* Disable the protection resistor connection. */
-    OAED_HBridgeControl( OPEN_CIRCUIT );
+
     /* Disarm Defibrillator. */
     OAED_DisarmDefibrillator(false);
 
     /* Enable the charging circuit. */
-    CyPins_SetPin(Charge_En_0);
+    OAED_PINCONTROL(true, Charge_En_0);
 
     /* Enable capacitor sense. */
     Comp_CapReady_Start();
@@ -266,7 +251,10 @@ void OAED_EnableChargingCircuit(){
 
 void OAED_DisableChargingCircuit(){
     /* Disable Charging circuit. */
-    CyPins_ClearPin(Charge_En_0);
+    OAED_PINCONTROL(false, Charge_En_0);
+
+    /* Disarm Defibrillator. */
+    OAED_DisarmDefibrillator(false);
 
     /* Disable capacitor sense. */
     isr_CapReady_Disable();

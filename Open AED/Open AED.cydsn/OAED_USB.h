@@ -31,7 +31,7 @@
 #define OAED_USBSendData16(message,n) OAED_USBSendData8((int8*) message, (uint16)(2*n))
 /* Send data as 8-bit array. LSB first. */
 
-#define OAED_ShiftNAdd(data,flag) (data << 1) + flag
+//#define OAED_ShiftNAdd(data,flag) (data << 1) + flag
 /* Shift left one bit and add the flag. */
 
 /* End of Macro*/
@@ -66,6 +66,7 @@ void OAED_USBInteractiveMode();
 
 /* Send data */
 void OAED_USBSendSystemImage();
+inline int16 OAED_ShiftNAdd(int16,bool);
 void OAED_USBSendECG();
 void OAED_USBSendZ();
 void OAED_USBSendBuffer();
