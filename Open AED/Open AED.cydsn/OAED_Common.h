@@ -14,7 +14,7 @@
 /* Compilation Options */
 #define OAED_TIME               true         // Enable or disable time
                                              // functionalities.
-#define RAW_MODE                false         // Enable or disable raw ECG
+#define RAW_MODE                true         // Enable or disable raw ECG
                                              // acquisition.
 /* End of compilation options */
 
@@ -39,6 +39,8 @@
 #define EVENT_NO                3            // Number of event registered
 #define POSITIVE_EVENT_NO       2            // Number of positive event
                                              // required for defibrillation
+/* ADC */
+#define ADC_BUFFER_GAIN         2            // ADC Delta Sigma buffer gain
 /* Cache */
 #define ECG_CACHE_SIZE          8            // ECG cache size
 #define RAW_CACHE_SIZE          8            // RAW cache size
@@ -50,14 +52,21 @@
                                              // Size of ECG data/buffer vectors
 /* Impedance */
 #define Z_SIGNAL_LENGTH         1            // Seconds of signal registered [s]
-#define Z_SAMPLING_F            4000          // Sampling frequency of Z signal
+#define Z_SAMPLING_F            4000         // Sampling frequency of Z signal
                                              // [Hz]
+#define Z_SIGNAL_F              250          // Excitation signal frequency [Hz]
+#define Z_PERIOD                Z_SAMPLING_F / Z_SIGNAL_F
+                                             // No of samples per
 #define Z_DATA_SIZE             Z_SIGNAL_LENGTH * Z_SAMPLING_F
                                              // Size of Z data/buffer vector
 #define Z_MIN                   25           // Minimum impedance [Ohm]
 #define Z_MAX                   180          // Maximum impedance [Ohm]
 #define IMPEDANCE_DEVIATION     0.50         // Maximum deviation for impedance
                                              // measurement
+/* RAW */
+#if(RAW_MODE)
+#define RAW_DATA_SIZE           4000
+#endif
 
 /* Hardware */
 #define C              (double) 0.00015      // Condensator capacity [F]
@@ -74,8 +83,7 @@
 
 /* Variable definitions */
 // Cache
-extern int16 CacheECG[];
-extern int16 CacheRAW[];
+extern int16 CacheECG[];                     // ECG cache
 // Buffers
 extern int16 BufferECG[];                    // ECG Buffer
 extern int16 BufferZ[];                      // Z Buffer
@@ -86,8 +94,9 @@ extern int16 DataZ[];                        // Z Data Vector
 extern double Patient_impedance;             // Patient impedance
 // Raw data
 #if(RAW_MODE)
-    extern int16 DataRAW[];                   // Raw ECG Data
-    extern int16 BufferRAW[];             // Raw ECG Buffer
+    extern int16 DataRAW[];                  // Raw ECG Data
+    extern int16 BufferRAW[];                // Raw ECG Buffer
+    extern int16 CacheRAW[];                 // Raw Cache
 #endif
 /* End of variable definitions */
 
@@ -95,6 +104,9 @@ extern double Patient_impedance;             // Patient impedance
 extern bool ECG_buffer_full;                 // ECG Buffer Status
 extern bool Z_buffer_full;                   // Z Buffer Status
 extern bool ECG_data_pending;                // New ECG data available
+#if(RAW_MODE)
+    extern bool RAW_buffer_full;
+#endif
 
 extern bool ECG_enabled;                     // ECG acquisition status
 extern bool Z_enabled;
@@ -104,6 +116,8 @@ extern bool capacitor_ready;                 // Capacitor status
 
 extern bool Event_flags[];                   // VT/VF Event Flags
 
+extern bool Continuous_USBECG;               // Currently not working properly
+extern bool Continuous_USBRAW;
 /* End of system flags */
 
 /* Function prototypes */

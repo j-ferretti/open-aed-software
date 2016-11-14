@@ -25,8 +25,8 @@ int16 DataZ[Z_DATA_SIZE]                = {0};
 double Patient_impedance                = 0;
 
 #if(RAW_MODE)
-    int16 DataRAW[ECG_DATA_SIZE]        = {0};
-    int16 BufferRAW[ECG_DATA_SIZE]      = {0};
+    int16 DataRAW[RAW_DATA_SIZE]        = {0};
+    int16 BufferRAW[RAW_DATA_SIZE]      = {0};
 #endif
 /* End of global variables declaration */
 
@@ -42,6 +42,13 @@ bool lead_detected                  = false;
 bool capacitor_ready                = false;
 
 bool Event_flags[EVENT_NO]          = {false};
+
+bool Continuous_USBECG              = false;
+bool Continuous_USBRAW              = false;
+
+#if(RAW_MODE)
+bool RAW_buffer_full                = false;
+#endif
 /* End of system flags declaration */
 
 /* Function declarations */
@@ -86,15 +93,17 @@ void OAED_CopyECGBuffer(){
     /* The Buffer is copied on the Data vector and re-initialized to zeroes. */
     uint16 i;
 
-    for(i = 0; i < ECG_DATA_SIZE ; i++){
-        /* ECG */
+    for(i = 0; i < ECG_DATA_SIZE ; i++)
         DataECG[i] = BufferECG[i];
 
-        /* Raw ECG */
-        #if(RAW_MODE)
+    /* Raw signal */
+    #if(RAW_MODE)
+    if(RAW_buffer_full){
+        for(i = 0; i < RAW_DATA_SIZE ; i++)
             DataRAW[i] = BufferRAW[i];
-        #endif
+        RAW_buffer_full = false;
     }
+    #endif
 
     /* Set system flags */
     ECG_buffer_full = false;
@@ -173,26 +182,60 @@ bool OAED_EvaluateImpedance(){
     /* Evaluate the patient impedance from data and store it in */
     /* patient_impedance variable. */
     /* This function return false if a lead off is assumed, otherwise true.*/
-    uint16 i;
-    uint16 TempMax = 0;
-    double new_impedance = 0;
+    uint16 i;                           // DataZ index
+    uint16 iZmax = 5 * Z_PERIOD;        // Maximum index
+    uint16 count = 0;                   // Sum count
+    double new_impedance = 0;           // Temporary impedance
 
-    /* Find maximum abolute value */
-    for( i=0; i<Z_DATA_SIZE ; i++){
-        if(fabs(DataZ[i]) > TempMax)
-            TempMax = fabs(DataZ[i]);
-    }
+    /* Find first maximum index */
+    for( i = iZmax + 1 ; (i < iZmax + Z_PERIOD) && (i < Z_DATA_SIZE) ; i++)
+        if( DataZ[i] > DataZ[iZmax] )
+            iZmax = i;
+
+    if(i >= Z_DATA_SIZE / 2)
+        return false;
 
     /* Data Z contains voltages count used to evaluate the impedance. */
-    for( i=0; i<Z_DATA_SIZE ; i++){
-        if(fabs(DataZ[i]) > 0.75 * TempMax)
-            /* This loop convert all the ADC counts to uV and sum them all. */
-            new_impedance += (double)(ADC_DelSig_CountsTo_uVolts(fabs(DataZ[i])));
+    /* First sum up all peak to peak values */
+    for( i = iZmax ; (i + Z_PERIOD / 2) < Z_DATA_SIZE ; i += Z_PERIOD ){
+        /* Correct sampling misalignment */
+        iZmax = i;
+        while( DataZ[i] < DataZ[i+1] ){
+            if(i > iZmax + Z_PERIOD)
+                break;
+            else
+                i++;
+        }
+        while( DataZ[i] < DataZ[i-1] ){
+            if(i < iZmax - Z_PERIOD)
+                break;
+            else
+                i--;
+        }
+        if(fabs(i - iZmax) > Z_PERIOD){
+            /* No peak detected, try again in the next 5th period */
+            i = iZmax + 5 * Z_PERIOD;
+            continue;
+        }
+        /* Peak to peak = max - min */
+        new_impedance += DataZ[i] - DataZ[i + Z_PERIOD / 2];
+        count++;
     }
-    /* Get the mean value. */
-    new_impedance /= (double)Z_DATA_SIZE;
+    /* If more than 50% periods doesn't have a maximum, something is wrong. */
+    if(count < (Z_DATA_SIZE/Z_PERIOD) * 0.5 )
+        return false;
 
-    /* Calculate the impedance from the IDAC current (expressed in 1/8 uA). */
+    /* Get the mean value. */
+    new_impedance /= count;
+    /* Divide peak to peak mean value by 2 */
+    new_impedance /= 2;
+    /* Remove the ADC buffer gain */
+    new_impedance /= ADC_BUFFER_GAIN;
+
+    /* Get the voltage value from the ADC counts */
+    //new_impedance = (double)(ADC_DelSig_CountsTo_uVolts((int32)new_impedance));
+
+    /* Calculate the impedance from the 2 IDAC current (expressed in 1/8 uA). */
     new_impedance /= ( (double)(IDAC_Drain_Data) * 2 / 8 );
 
     // DISABLED FOR DEBUG PURPOSE //

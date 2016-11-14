@@ -85,7 +85,6 @@ void OAED_USBSendData8(int8 message[], uint16 n){
     return;
 }
 
-
 void OAED_USBPrintECG(){    // DEPRECATED
     uint16 i;
     char message[USBFS_BUFFER_SIZE];
@@ -220,14 +219,17 @@ void OAED_USBPrintSystemImage(){    // DEPRECATED BUT STILL IN USE
 
 void OAED_USBSendI(){    // DEPRECATED
     char message[USBFS_BUFFER_SIZE];
-    bool tmp;
+    //bool tmp;
 
     OAED_USBPrintTimeStamp();
-    OAED_USBSendString("\n");
-    //tmp = CyPins_ReadPin(Comp_Pin_n) != 0;
-    tmp = Comp_n_GetCompare() != 0;
-    sprintf(message,"n-Comparator       : %1d\n",tmp);
+    //OAED_USBSendString("\n");
+
+    sprintf(message,"Patient Impedance  : %ld\n",(int32)(1000 * Patient_impedance));
     OAED_USBSendString(message);
+    //tmp = CyPins_ReadPin(Comp_Pin_n) != 0;
+    //tmp = Comp_n_GetCompare() != 0;
+    //sprintf(message,"n-Comparator       : %1d\n",tmp);
+    //OAED_USBSendString(message);
     //tmp = CyPins_ReadPin(Comp_Pin_p) != 0;
     /*
     tmp = Comp_p_GetCompare() != 0;
@@ -235,6 +237,7 @@ void OAED_USBSendI(){    // DEPRECATED
     OAED_USBSendString(message);
     */
     OAED_USBSendString("\n");
+    return;
 }
 
 void OAED_USBSendSystemImage(){
@@ -281,8 +284,9 @@ void OAED_USBSendECG(){
 #if(RAW_MODE)
 void OAED_USBSendRAW(){
     /* OAED_USBSendData need explicit definition of what is sending. */
-    extern int16 DataRAW[ECG_DATA_SIZE];
-    OAED_USBSendData(DataRAW);
+    extern int16 DataRAW[RAW_DATA_SIZE];
+    OAED_USBSendData16(DataRAW,2000);
+    OAED_USBSendData16(DataRAW+4000,2000);
     return;
 }
 #endif
@@ -292,7 +296,7 @@ void OAED_USBSendZ(){
     extern int16 DataZ[Z_DATA_SIZE];
     //OAED_USBSendData(DataZ);
     OAED_USBSendData16(DataZ,2000);
-    OAED_USBSendData16(DataZ+2000,2000);
+    OAED_USBSendData16(DataZ+4000,2000);
     return;
 }
 
@@ -373,6 +377,9 @@ bool OAED_USBGetCommand(){
             #if(RAW_MODE)
                 OAED_USBSendRAW();
             #endif
+            return false;
+        case 'C':
+            Continuous_USBRAW = !Continuous_USBRAW;
             return false;
         case 'I':
             OAED_USBSendI();

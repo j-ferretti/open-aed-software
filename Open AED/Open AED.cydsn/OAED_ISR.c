@@ -25,6 +25,8 @@ CY_ISR(isr_CacheECGRe){
     t += CacheECG[6];
     t += CacheECG[7];
     BufferECG[n++] = (int16)(t>>3);
+    if(Continuous_USBECG)
+        OAED_USBSendData16(CacheECG,8);
     if(n == ECG_DATA_SIZE){
         ECG_buffer_full = true;
         n = 0;
@@ -36,17 +38,18 @@ CY_ISR(isr_CacheECGRe){
 /* RAW Cache Replenished ISR custom call definition. */
 CY_ISR(isr_CacheRAWRe){
     static uint16 n = 0;
-    int32 t;
-    t = CacheRAW[0];
-    t += CacheRAW[1];
-    t += CacheRAW[2];
-    t += CacheRAW[3];
-    t += CacheRAW[4];
-    t += CacheRAW[5];
-    t += CacheRAW[6];
-    t += CacheRAW[7];
-    BufferRAW[n++] = (int16)(t>>3);
-    if(n == ECG_DATA_SIZE){
+    BufferRAW[n++] = CacheRAW[0];
+    BufferRAW[n++] = CacheRAW[1];
+    BufferRAW[n++] = CacheRAW[2];
+    BufferRAW[n++] = CacheRAW[3];
+    BufferRAW[n++] = CacheRAW[4];
+    BufferRAW[n++] = CacheRAW[5];
+    BufferRAW[n++] = CacheRAW[6];
+    BufferRAW[n++] = CacheRAW[7];
+    if(Continuous_USBRAW)
+        OAED_USBSendData16(CacheRAW,8);
+    if(n == RAW_DATA_SIZE){
+        RAW_buffer_full = true;
         n = 0;
         OAED_ISRRAWDISABLE();
     }
@@ -55,8 +58,8 @@ CY_ISR(isr_CacheRAWRe){
 
 /* Z Buffer Replenished ISR custom call definition. */
 CY_ISR(isr_BufferZRe){
-    Z_buffer_full = true;
     OAED_ISRZDisable();
+    Z_buffer_full = true;
 }
 
 /* Lead-off ISR custom call definition. */
@@ -109,11 +112,14 @@ void OAED_ISRInit(){
     isr_CapLow_StartEx(isr_Cap_Low);              /* Capacitor low V          */
     isr_Defibrillate_StartEx(isr_Defibrillation); /* Defibrillate             */
     #if(RAW_MODE)                                 /* Raw cache replenished    */
-    isr_Cache_RAW_Replenished_StartEx(isr_CacheRAWRe);
+    isr_CacheRAWReplenished_StartEx(isr_CacheRAWRe);
     #endif
 
     OAED_ISRECGDisable();
     OAED_ISRZDisable();
+    #if(RAW_MODE)
+    OAED_ISRRAWDISABLE();
+    #endif
 
     return;
 }

@@ -1,6 +1,8 @@
 function d = get_data(c, s1)
     %% Send command to device
-    fwrite(s1,c);
+    if(~isnan(c))
+        fwrite(s1,c);
+    end
     
     %% Wait for a reply
     t = tic;

@@ -66,6 +66,9 @@ bool OAED_AcquisitionECGUnpause(){
 
     /* Enable ECG cache interrupt */
     OAED_ISRECGEnable();
+    #if(RAW_MODE)
+    OAED_ISRRAWENABLE();
+    #endif
 
     return true;
 }
@@ -73,8 +76,12 @@ bool OAED_AcquisitionECGUnpause(){
 inline void OAED_AcquisitionECGPause(){
     /* Pause ECG acquisition. */
     /* Check if ECG acquisition isn't running, then proceede to stop it. */
-    if(ECG_enabled)
+    if(ECG_enabled){
         OAED_ISRECGDisable();
+        #if(RAW_MODE)
+        OAED_ISRRAWDISABLE();
+        #endif
+    }
 }
 
 /* End of function declarations */

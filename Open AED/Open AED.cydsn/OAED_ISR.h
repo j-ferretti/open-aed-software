@@ -20,8 +20,8 @@
 /* Macro */
 /* RAW cache interrupt control */
 #if(RAW_MODE)
-#define OAED_ISRRAWENABLE()  isr_Cache_RAW_Replenished_Enable()
-#define OAED_ISRRAWDISABLE() isr_Cache_RAW_Replenished_Disable()
+#define OAED_ISRRAWENABLE()  isr_CacheRAWReplenished_Enable()
+#define OAED_ISRRAWDISABLE() isr_CacheRAWReplenished_Disable()
 #endif
 /* End of macro */
 

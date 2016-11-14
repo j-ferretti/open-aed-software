@@ -112,36 +112,11 @@ ChB_FREG: dw 0x0202
 
 
 area data_b
-ChB_FIRST: dw    20234
-dw    40467
-dw    20234
-dw  6809057
-dw 13812054
-dw    88388
-dw   176776
-dw    88388
-dw  6347202
-dw 14297677
-dw    78776
-dw   157552
-dw    78776
-dw  6122452
-dw 14533993
-dw    96797
-dw   193594
-dw    96797
-dw  7524422
-dw 13059875
-dw   734146
-dw 15308923
-dw   734146
-dw  8199880
-dw 12687778
-dw    36238
-dw    72476
-dw    36238
-dw  8143921
-ChB_LAST: dw 12707752
+ChB_FIRST: dw    96608
+dw        0
+dw 16680608
+dw  7573731
+ChB_LAST: dw 12776049
 
 
 area acu
