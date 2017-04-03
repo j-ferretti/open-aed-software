@@ -20,9 +20,12 @@ int16 BufferECG[ECG_DATA_SIZE]          = {0};
 int16 BufferZ[Z_DATA_SIZE]              = {0};
 
 int16 DataECG[ECG_DATA_SIZE]            = {0};
+int16 OldECG[ECG_DATA_SIZE]             = {0};
 int16 DataZ[Z_DATA_SIZE]                = {0};
 
-double Patient_impedance                = 0;
+double PatientImpedance                 = 0;
+
+uint8 EventCounter = 0;
 
 #if(RAW_MODE)
     int16 DataRAW[RAW_DATA_SIZE]        = {0};
@@ -41,7 +44,7 @@ bool Z_enabled                      = false;
 bool lead_detected                  = false;
 bool capacitor_ready                = false;
 
-bool Event_flags[EVENT_NO]          = {false};
+bool event_flags[EVENT_NO]          = {false};
 
 bool Continuous_USBECG              = false;
 bool Continuous_USBRAW              = false;
@@ -93,8 +96,10 @@ void OAED_CopyECGBuffer(){
     /* The Buffer is copied on the Data vector and re-initialized to zeroes. */
     uint16 i;
 
-    for(i = 0; i < ECG_DATA_SIZE ; i++)
+    for(i = 0; i < ECG_DATA_SIZE ; i++){
+        OldECG[i] = DataECG[i];
         DataECG[i] = BufferECG[i];
+    }
 
     /* Raw signal */
     #if(RAW_MODE)
@@ -126,11 +131,12 @@ void OAED_CopyZBuffer(){
     return;
 }
 
-void OAED_Led(bool red, bool yellow, bool green){
+void OAED_Led(bool blue, bool orange, bool green, bool yellow){
     /* Set or clear pins according to the parameters. */
-    OAED_PINCONTROL(red, Status_Led_Red);
-    OAED_PINCONTROL(yellow, Status_Led_Yellow);
-    OAED_PINCONTROL(green, Status_Led_Green);
+    OAED_PINCONTROL(blue, Status_Led_Blue);         // Evaluating ECG
+    OAED_PINCONTROL(orange, Status_Led_Orange);     // Capacitor charging
+    OAED_PINCONTROL(green, Status_Led_Green);       // System ready
+    OAED_PINCONTROL(yellow, Status_Led_Yellow);     // Lead-off only
     return;
 }
 
@@ -139,7 +145,9 @@ void OAED_ResetEvent(){
 
     uint8 i;
     for(i = 0 ; i < EVENT_NO ; i++)
-        Event_flags[i] = false;
+        event_flags[i] = false;
+
+    EventCounter = 0;
 
     ECG_data_pending = false;
     return;
@@ -153,14 +161,13 @@ bool OAED_CheckFlags(){
     /* POSITIVE_EVENT_NO    2 */
     /* EVENT_NO             3 */
 
-
     uint8 i;
-    uint8 counter = 0;
+    uint8 Counter = 0;
 
     for( i=0 ; i < EVENT_NO ; i++){
-        if(Event_flags[i])
-            counter++;
-        if(counter == POSITIVE_EVENT_NO)
+        if(event_flags[i])
+            Counter++;
+        if(Counter == POSITIVE_EVENT_NO)
             return true;
     }
     return false;
@@ -170,10 +177,7 @@ bool OAED_EvaluateRhythm(){
     /* Evaluate the Data vector, update the event flags and return true */
     /* if VT/VF is detected. */
 
-    /* Clear data pending flag. */
-    ECG_data_pending = false;
-
-    /* Black magic here */
+    OAED_ECGAnalysis();
 
     return OAED_CheckFlags();
 }
@@ -184,8 +188,8 @@ bool OAED_EvaluateImpedance(){
     /* This function return false if a lead off is assumed, otherwise true.*/
     uint16 i;                           // DataZ index
     uint16 iZmax = 5 * Z_PERIOD;        // Maximum index
-    uint16 count = 0;                   // Sum count
-    double new_impedance = 0;           // Temporary impedance
+    uint16 Count = 0;                   // Sum count
+    double NewImpedance = 0;           // Temporary impedance
 
     /* Find first maximum index */
     for( i = iZmax + 1 ; (i < iZmax + Z_PERIOD) && (i < Z_DATA_SIZE) ; i++)
@@ -218,33 +222,34 @@ bool OAED_EvaluateImpedance(){
             continue;
         }
         /* Peak to peak = max - min */
-        new_impedance += DataZ[i] - DataZ[i + Z_PERIOD / 2];
-        count++;
+        NewImpedance += DataZ[i] - DataZ[i + Z_PERIOD / 2];
+        Count++;
     }
     /* If more than 50% periods doesn't have a maximum, something is wrong. */
-    if(count < (Z_DATA_SIZE/Z_PERIOD) * 0.5 )
+    if(Count < (Z_DATA_SIZE/Z_PERIOD) * 0.5 )
         return false;
 
     /* Get the mean value. */
-    new_impedance /= count;
+    NewImpedance /= Count;
     /* Divide peak to peak mean value by 2 */
-    new_impedance /= 2;
+    NewImpedance /= 2;
     /* Remove the ADC buffer gain */
-    new_impedance /= ADC_BUFFER_GAIN;
+    NewImpedance /= ADC_BUFFER_GAIN;
 
     /* Get the voltage value from the ADC counts */
-    //new_impedance = (double)(ADC_DelSig_CountsTo_uVolts((int32)new_impedance));
+    //NewImpedance = (double)(ADC_DelSig_CountsTo_uVolts((int32)NewImpedance));
 
     /* Calculate the impedance from the 2 IDAC current (expressed in 1/8 uA). */
-    new_impedance /= ( (double)(IDAC_Drain_Data) * 2 / 8 );
+    NewImpedance /= ( (double)(IDAC_Drain_Data) * 2 / 8 );
+    NewImpedance *= 10;
 
     // DISABLED FOR DEBUG PURPOSE //
     /* If the new impedance is outside the human limits it means that the
        electrodes may not be attached to the patient. Therefore we assume
        a lead-off.
        */
-    /*if(new_impedance < Z_MIN || new_impedance > Z_MAX){
-        Patient_impedance = 0;
+    /*if(NewImpedance < Z_MIN || NewImpedance > Z_MAX){
+        PatientImpedance = 0;
         lead_detected = false;
         return false;
     }*/
@@ -256,15 +261,15 @@ bool OAED_EvaluateImpedance(){
        electrodes went off.
        */
     /*
-    if(Patient_impedance != 0){
-        double imp_ratio = new_impedance / Patient_impedance;
+    if(PatientImpedance != 0){
+        double imp_ratio = NewImpedance / PatientImpedance;
         if(imp_ratio > 1 + IMPEDANCE_DEVIATION){
-            Patient_impedance = 0;
+            PatientImpedance = 0;
             lead_detected = false;
             return false;
         }
         if(imp_ratio < 1 - IMPEDANCE_DEVIATION){
-            Patient_impedance = 0;
+            PatientImpedance = 0;
             lead_detected = false;
             return false;
         }
@@ -272,7 +277,7 @@ bool OAED_EvaluateImpedance(){
     // DISABLED FOR DEBUG PURPOSE //
 
     /* If the impedance calculations are correct, overwrite the old impedance */
-    Patient_impedance = new_impedance;
+    PatientImpedance = NewImpedance;
     return true;
 }
 

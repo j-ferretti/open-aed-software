@@ -11,12 +11,12 @@
 #include "OAED_Defibrillation.h"
 
 uint32 OAED_EvaluateDischargeTime(){ // Possibly deprecated
-    uint32 time;
+    uint32 Time;
     /* Time formula. */
-    time = (uint32)(- Patient_impedance * C * log( 1 - 2 * U/U_MAX ));
-    /* Express time in ms */
-    time = time * 1000;
-    return time;
+    Time = (uint32)(- PatientImpedance * C * log( 1 - 2 * U/U_MAX ));
+    /* Express Time in ms */
+    Time = Time * 1000;
+    return Time;
 }
 
 void OAED_EnableDefibrillation(){
@@ -88,17 +88,17 @@ void OAED_InternalDischarge(){
     */
     return;
     /* We don't need to wait for the capacitor to fully discharge because
-       it's going to need a lot of time.
+       it's going to need a lot of Time.
        Also, this way is safer since the capacitor can't store energy until
        the circuit is opened again when the next charge command is called.
     */
 }
 
 void OAED_MonophasicDefibrillation(){
-    uint32 time;
+    uint32 Time;
 
-    /* Get discharge time. */
-    time = OAED_EvaluateDischargeTime();
+    /* Get discharge Time. */
+    Time = OAED_EvaluateDischargeTime();
 
     /* Enable patient defibrillation. */
     OAED_EnableDefibrillation();
@@ -106,7 +106,7 @@ void OAED_MonophasicDefibrillation(){
     /* Start Defibrillation. */
     OAED_HBridgeControl( PHI_1 );
     /* Wait for the charge to be delivered. */
-    CyDelay(time);
+    CyDelay(Time);
     /* Stop Defibrillation */
     OAED_HBridgeControl( OPEN_CIRCUIT );
 
@@ -120,18 +120,18 @@ void OAED_MonophasicDefibrillation(){
 }
 
 void OAED_PolyphasicDefibrillation(uint8 phase_no){
-    uint32 total_time;
-    uint32 phase1_time;
-    uint32 phasen_time;
+    uint32 TotalTime;
+    uint32 Phase1_Time;
+    uint32 PhaseN_Time;
     uint8 i;
 
-    /* Get discharge time. */
-    total_time = OAED_EvaluateDischargeTime();
-    phase1_time = total_time / phase_no;
-    phasen_time = total_time - phase_no * phase1_time;
+    /* Get discharge Time. */
+    TotalTime = OAED_EvaluateDischargeTime();
+    Phase1_Time = TotalTime / phase_no;
+    PhaseN_Time = TotalTime - phase_no * Phase1_Time;
 
     /* If phase doesn't last enough execute a biphasic instead */
-    if(phasen_time <3){
+    if(PhaseN_Time <3){
         OAED_BiphasicDefibrillation(50);
         return;
     }
@@ -142,7 +142,7 @@ void OAED_PolyphasicDefibrillation(uint8 phase_no){
     /* Start Defibrillation. */
     OAED_HBridgeControl( PHI_1 );
     /* Wait for the phase 1 charge to be delivered. */
-    CyDelay(phase1_time);
+    CyDelay(Phase1_Time);
 
     /* Stop Defibrillation for 1 msec */
     OAED_HBridgeControl( OPEN_CIRCUIT );
@@ -155,7 +155,7 @@ void OAED_PolyphasicDefibrillation(uint8 phase_no){
         else
             OAED_HBridgeControl( PHI_1 );
         /* Wait for the charge to be delivered. */
-        CyDelay(phasen_time);
+        CyDelay(PhaseN_Time);
         /* Stop Defibrillation. */
         OAED_HBridgeControl( OPEN_CIRCUIT );
         CyDelayUs(500);
@@ -171,14 +171,14 @@ void OAED_PolyphasicDefibrillation(uint8 phase_no){
 }
 
 void OAED_BiphasicDefibrillation(uint8 phase_one_duty){
-    uint32 total_time;
-    uint32 phase1_time;
+    uint32 TotalTime;
+    uint32 Phase1_Time;
     uint32 phase2_time;
 
-    /* Get discharge time. */
-    total_time = OAED_EvaluateDischargeTime();
-    phase1_time = total_time * phase_one_duty / 100;
-    phase2_time = total_time - phase1_time;
+    /* Get discharge Time. */
+    TotalTime = OAED_EvaluateDischargeTime();
+    Phase1_Time = TotalTime * phase_one_duty / 100;
+    phase2_time = TotalTime - Phase1_Time;
 
     /* Enable patient defibrillation. */
     OAED_EnableDefibrillation();
@@ -186,7 +186,7 @@ void OAED_BiphasicDefibrillation(uint8 phase_one_duty){
     /* Start Defibrillation. */
     OAED_HBridgeControl( PHI_1 );
     /* Wait for the phase 1 charge to be delivered. */
-    CyDelay(phase1_time);
+    CyDelay(Phase1_Time);
     /* Stop Defibrillation for 1 msec */
     OAED_HBridgeControl( OPEN_CIRCUIT );
     CyDelay(1);

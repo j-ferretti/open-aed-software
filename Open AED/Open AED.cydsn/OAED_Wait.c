@@ -19,12 +19,12 @@ void OAED_WaitLeadOn(){
     /* This function wait indefinitely until the electrodes are attached to */
     /* the patient. */
 
-    /* The system blinks the red led while waiting for the patient. */
-    bool Led_Red = false;
+    /* The system blinks the blue led while waiting for the patient. */
+    bool yellow_led = false;
     uint8 i;
 
     while(!lead_detected){
-        /* Blink the red led with a period of 1sec. */
+        /* Blink the blue led with a period of 1sec. */
         for(i = 0 ; i<5 ; i++){
             /* Check for lead detection every 100ms. */
             if(lead_detected){
@@ -32,8 +32,8 @@ void OAED_WaitLeadOn(){
             }
             CyDelay(100);
         }
-        Led_Red = !Led_Red;
-        OAED_Led(Led_Red, false, false);
+        yellow_led = !yellow_led;
+        OAED_Led(false, false, false, yellow_led);
     }
 }
  // NEED REWORK //  // NEED REWORK //  // NEED REWORK //  // NEED REWORK //

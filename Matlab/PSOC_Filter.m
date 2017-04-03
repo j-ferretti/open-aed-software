@@ -3,8 +3,7 @@ function filtered = PSOC_Filter(signal)
     %% Init
     n = length(signal);
     time = tic;
-    
-    s1 = serial('COM9', 'Baudrate', 9600);
+    s1 = serial('COM6', 'Baudrate', 9600);
     fopen(s1);
     try
         fwrite(s1,'s');

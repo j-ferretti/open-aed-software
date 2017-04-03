@@ -27,17 +27,35 @@
 /* End of numeric constants */
 
 /* Macro */
-#define OAED_USBSendData(message) OAED_USBSendDataVoid(message, (uint16)(sizeof(message)))
-#define OAED_USBSendData16(message,n) OAED_USBSendData8((int8*) message, (uint16)(2*n))
 /* Send data as 8-bit array. LSB first. */
-
-//#define OAED_ShiftNAdd(data,flag) (data << 1) + flag
-/* Shift left one bit and add the flag. */
-
+#define OAED_USBSendData(message)({\
+                        uint16 _n = sizeof(message)/sizeof(message[0]);\
+                        int8 _tmp[3];\
+                        _tmp[0] = 8*(int8)(sizeof(message[0]));\
+                        _tmp[1] = (int8)(_n&0x00ff);\
+                        _tmp[1] = (int8)(_n>>8);\
+                        OAED_USBSendData8(_tmp, 3);\
+                        OAED_USBSendDataVoid(message, _n);\
+                    })
+#define OAED_USBSendData16(message, n)({\
+                        int8 _tmp[3];\
+                        _tmp[0] = (16);\
+                        _tmp[1] = n&0x00ff;\
+                        _tmp[2] = n>>8;\
+                        OAED_USBSendData8(_tmp, 3);\
+                        OAED_USBSendData8((int8*) message, (uint16)(2*n));\
+                    })
+#define OAED_USBSendData32(message, n)({\
+                        int8 _tmp[3];\
+                        _tmp[0] = (16);\
+                        _tmp[1] = n&0x00ff;\
+                        _tmp[2] = n>>8;\
+                        OAED_USBSendData8(_tmp, 3);\
+                        OAED_USBSendData8((int8*) message, (uint16)(4*n));\
+                    })
 /* End of Macro*/
 
 /* Global variables */
-extern bool flag;                   // Flag used for debug purpose
 /* End of global variables */
 
 /* Function prototypes */
@@ -58,18 +76,18 @@ void OAED_USBPrintECGB();
 void OAED_USBPrintZ();
 void OAED_USBPrintSystemImage();
 void OAED_USBPrintTimeStamp();
-void OAED_USBPrintFlag();
 
 /* Interactive functions */
 uint16 OAED_USBGetData(uint8[], bool);
-void OAED_USBInteractiveMode();
+void OAED_USBReceiveData(int16[], uint16);
 
 /* Send data */
 void OAED_USBSendSystemImage();
-inline int16 OAED_ShiftNAdd(int16,bool);
 void OAED_USBSendECG();
 void OAED_USBSendZ();
 void OAED_USBSendBuffer();
+inline int16 OAED_ShiftNAdd(int16,bool);
+
 #if(RAW_MODE)
 void OAED_USBSendRAW();
 #endif

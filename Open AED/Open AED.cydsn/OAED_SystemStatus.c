@@ -75,11 +75,11 @@ char OAED_ChargingMode(){
        This mode is only entered if VF or VT are detected for 2 out of 3 period
        of time. (DEFAULT SETTINGS)
        */
-    static uint8 false_positive_count = 0; /* Init the false positive counter */
+    static uint8 FalsePositiveCount = 0; /* Init the false positive counter */
 
     /* Start ECG acquisition and check for lead-off */
     if(!OAED_AcquisitionECGUnpause()){
-        false_positive_count = 0;
+        FalsePositiveCount = 0;
         return internal_discharge;
         /* In case the system can't detect the leads on it activate the internal
            discharge to avoid possible hazardous situations.
@@ -94,8 +94,8 @@ char OAED_ChargingMode(){
                Then if in the last 5 time period no VT/VF events are found, it
                means that it was a false positive.
                */
-            if(++false_positive_count > 5){
-                false_positive_count = 0;
+            if(++FalsePositiveCount > 5){
+                FalsePositiveCount = 0;
                 return internal_discharge;
             }
         }
@@ -105,14 +105,14 @@ char OAED_ChargingMode(){
         /* If the capacitor is charged before new data is available the system
            reset the positive count and switch to discharge enabled mode.
            */
-        false_positive_count = 0;
+        FalsePositiveCount = 0;
         return discharge_enabled;
     }
     /* WaitForCap return false in case data is ready before the capacitor is,
        but also in case a lead-off is detected.
        */
     if(!lead_detected){
-        false_positive_count = 0;
+        FalsePositiveCount = 0;
         return internal_discharge;
     }
 
@@ -178,30 +178,30 @@ void OAED_SetSystemStatus(char Status){
 
     switch(Status){
         case charging_capacitor:
-            OAED_Led(true, true, false);    // Red and yellow
+            OAED_Led(true, true, false, false);    // Blue and orange
 
             /* Enable charging circuit. */
             OAED_EnableChargingCircuit();
             return;
         case discharge_enabled:
-            OAED_Led(true, true, true);     // Red, yellow and green
+            OAED_Led(true, true, true, false);     // Blue, orange and green
 
             /* Charging circuit should be already operative. */
             /* Arm the defibrillator. */
             OAED_ArmDefibrillator();
             return;
         case internal_discharge:
-            OAED_Led(false, false, false);  // No led
+            OAED_Led(false, false, false, false);  // No led
 
             OAED_DisableChargingCircuit();
             return;
         case measurement_mode:
-            OAED_Led(true, false, false);   // Only red
+            OAED_Led(true, false, false, false);   // Only blue
 
             OAED_DisableChargingCircuit();
             return;
         default:
-            OAED_Led(false, false, false);  // No led
+            OAED_Led(false, false, false, false);  // No led
 
             /* Lead-Off. */
             OAED_DisableChargingCircuit();

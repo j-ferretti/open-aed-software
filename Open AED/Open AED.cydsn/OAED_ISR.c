@@ -15,18 +15,15 @@
 /* ECG Cache Replenished ISR custom call definition. */
 CY_ISR(isr_CacheECGRe){
     static uint16 n = 0;
-    int32 t;
-    t = CacheECG[0];
-    t += CacheECG[1];
-    t += CacheECG[2];
-    t += CacheECG[3];
-    t += CacheECG[4];
-    t += CacheECG[5];
-    t += CacheECG[6];
-    t += CacheECG[7];
+    uint8 i;
+    int32 t = CacheECG[0];
+    for( i = 1 ; i < ECG_CACHE_SIZE ; i++ )
+        t += CacheECG[i];
+
     BufferECG[n++] = (int16)(t>>3);
+
     if(Continuous_USBECG)
-        OAED_USBSendData16(CacheECG,8);
+        OAED_USBSendData16(CacheECG, 8);
     if(n == ECG_DATA_SIZE){
         ECG_buffer_full = true;
         n = 0;
@@ -47,7 +44,7 @@ CY_ISR(isr_CacheRAWRe){
     BufferRAW[n++] = CacheRAW[6];
     BufferRAW[n++] = CacheRAW[7];
     if(Continuous_USBRAW)
-        OAED_USBSendData16(CacheRAW,8);
+        OAED_USBSendData16(CacheRAW, 8);
     if(n == RAW_DATA_SIZE){
         RAW_buffer_full = true;
         n = 0;
@@ -90,12 +87,17 @@ CY_ISR(isr_Cap_Low){
 
 /* Defibrillation ISR custom call definition. */
 CY_ISR(isr_Defibrillation){
+    /* Start speaker signal */
+    WaveDAC8_Spk_Start();
+    CyDelay(ALARM_TIME);
     /* Pause ECG acquisition. */
     OAED_AcquisitionECGPause();
     /* Perform a biphasic defibrillation. */
     OAED_BiphasicDefibrillation(50);
     /* Reset Event data. */
     OAED_ResetEvent();      // Not sure about this
+    /* Stop the speaker */
+    WaveDAC8_Spk_Stop();
 }
 
 /* ISR Init */

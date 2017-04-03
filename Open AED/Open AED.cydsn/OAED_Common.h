@@ -22,9 +22,13 @@
 #include <project.h>
 #include <stdbool.h>
 #include <math.h>
+#include "arm_math.h"
+#include "arm_const_structs.h"
+
 #include "OAED_Acquisition.h"
 #include "OAED_Defibrillation.h"
 #include "OAED_DMA.h"
+#include "OAED_ECGAlgorithms.h"
 #include "OAED_ISR.h"
 #include "OAED_SystemStatus.h"
 #include "OAED_USB.h"
@@ -68,6 +72,9 @@
 #define RAW_DATA_SIZE           4000
 #endif
 
+/* Defibrillation signal */
+#define ALARM_TIME              1500         // Duration of pre-defib. alarm [ms]
+
 /* Hardware */
 #define C              (double) 0.00015      // Condensator capacity [F]
 #define V              (double) 1700         // Maximum voltage [V]
@@ -78,6 +85,12 @@
 
 /* Macro */
 #define OAED_PINCONTROL(on,pin) (on) ? CyPins_SetPin(pin) : CyPins_ClearPin(pin)
+#define OAED_SWAP(a,b)({ \
+                        __typeof__(a) _a = (a); \
+                        a = b; \
+                        b = _a; \
+                    })
+//#define abs(a) (a<0) ? -a : a
 /* End of macro */
 
 
@@ -86,12 +99,15 @@
 extern int16 CacheECG[];                     // ECG cache
 // Buffers
 extern int16 BufferECG[];                    // ECG Buffer
+extern int16 OldECG[];                       // Last ECG
 extern int16 BufferZ[];                      // Z Buffer
 // Data
 extern int16 DataECG[];                      // ECG Data Vector
 extern int16 DataZ[];                        // Z Data Vector
 // Impedance
-extern double Patient_impedance;             // Patient impedance
+extern double PatientImpedance;             // Patient impedance
+// Event
+extern uint8 EventCounter;
 // Raw data
 #if(RAW_MODE)
     extern int16 DataRAW[];                  // Raw ECG Data
@@ -114,7 +130,7 @@ extern bool Z_enabled;
 extern bool lead_detected;                   // Lead Detected
 extern bool capacitor_ready;                 // Capacitor status
 
-extern bool Event_flags[];                   // VT/VF Event Flags
+extern bool event_flags[];                   // VT/VF Event Flags
 
 extern bool Continuous_USBECG;               // Currently not working properly
 extern bool Continuous_USBRAW;
@@ -127,7 +143,7 @@ void OAED_InitFilter();
 void OAED_CopyECGBuffer();
 void OAED_CopyZBuffer();
 
-void OAED_Led(bool, bool, bool);
+void OAED_Led(bool, bool, bool, bool);
 
 void OAED_ResetEvent();
 bool OAED_CheckFlags();
