@@ -214,16 +214,6 @@ void OAED_USBSendI(){    // DEPRECATED
 
     sprintf(Message,"Patient Impedance  : %ld\n",(int32)(1000 * PatientImpedance));
     OAED_USBSendString(Message);
-    //tmp = CyPins_ReadPin(Comp_Pin_n) != 0;
-    //tmp = Comp_n_GetCompare() != 0;
-    //sprintf(Message,"n-Comparator       : %1d\n",tmp);
-    //OAED_USBSendString(Message);
-    //tmp = CyPins_ReadPin(Comp_Pin_p) != 0;
-    /*
-    tmp = Comp_p_GetCompare() != 0;
-    sprintf(Message,"p-Comparator       : %1d\n",tmp);
-    OAED_USBSendString(Message);
-    */
     OAED_USBSendString("\n");
     return;
 }

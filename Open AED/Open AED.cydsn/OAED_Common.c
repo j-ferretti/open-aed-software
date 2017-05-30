@@ -182,7 +182,7 @@ bool OAED_EvaluateRhythm(){
     return OAED_CheckFlags();
 }
 
-bool OAED_EvaluateImpedance(){
+bool OAED_EvaluateImpedanceAC(){
     /* Evaluate the patient impedance from data and store it in */
     /* patient_impedance variable. */
     /* This function return false if a lead off is assumed, otherwise true.*/
@@ -243,41 +243,61 @@ bool OAED_EvaluateImpedance(){
     NewImpedance /= ( (double)(IDAC_Drain_Data) * 2 / 8 );
     NewImpedance *= 10;
 
-    // DISABLED FOR DEBUG PURPOSE //
+    if(!OAED_ValidateImpedance(NewImpedance)){
+        PatientImpedance = 0;
+        lead_detected = false;
+        return false;
+    }
+
+    /* If the impedance calculations are correct, overwrite the old impedance */
+    PatientImpedance = NewImpedance;
+    return true;
+}
+
+bool OAED_EvaluateImpedanceDC(){
+    uint16 i;                          // For index
+    double NewImpedance = 0;           // Temporary impedance
+
+    /* Find first maximum index */
+    for( i = 0 ; i < Z_DATA_SIZE ; i++)
+        NewImpedance += ((double)(DataZ[i])/Z_DATA_SIZE);
+
+    /* Calculate the impedance from the 2 IDAC current (expressed in 1/8 uA). */
+    NewImpedance /= ( (double)(IDAC_Drain_Data) / 8 );
+    NewImpedance /= 32768;              // 16bit = 2^15 max
+    NewImpedance *= 32000;              // ADC input range [uV]
+
+    if(!OAED_ValidateImpedance(NewImpedance)){
+        PatientImpedance = 0;
+        lead_detected = false;
+        return false;
+    }
+
+    /* If the impedance calculations are correct, overwrite the old impedance */
+    PatientImpedance = fabs(NewImpedance);
+    return true;
+}
+
+bool OAED_ValidateImpedance(double Impedance){
     /* If the new impedance is outside the human limits it means that the
        electrodes may not be attached to the patient. Therefore we assume
        a lead-off.
        */
-    /*if(NewImpedance < Z_MIN || NewImpedance > Z_MAX){
-        PatientImpedance = 0;
-        lead_detected = false;
+    if(Impedance < Z_MIN || Impedance > Z_MAX)
         return false;
-    }*/
-    // DISABLED FOR DEBUG PURPOSE //
 
-    // DISABLED FOR DEBUG PURPOSE //
     /* This is optional, but enabled by default. */
     /* If the last acquisition was drastically different it is likely that the
        electrodes went off.
        */
-    /*
     if(PatientImpedance != 0){
-        double imp_ratio = NewImpedance / PatientImpedance;
-        if(imp_ratio > 1 + IMPEDANCE_DEVIATION){
-            PatientImpedance = 0;
-            lead_detected = false;
+        double imp_ratio = Impedance / PatientImpedance;
+        if(imp_ratio > 1 + IMPEDANCE_DEVIATION)
             return false;
-        }
-        if(imp_ratio < 1 - IMPEDANCE_DEVIATION){
-            PatientImpedance = 0;
-            lead_detected = false;
-            return false;
-        }
-    }*/
-    // DISABLED FOR DEBUG PURPOSE //
 
-    /* If the impedance calculations are correct, overwrite the old impedance */
-    PatientImpedance = NewImpedance;
+        if(imp_ratio < 1 - IMPEDANCE_DEVIATION)
+            return false;
+    }
     return true;
 }
 

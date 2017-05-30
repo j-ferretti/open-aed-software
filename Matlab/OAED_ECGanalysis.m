@@ -50,23 +50,4 @@ for k = 1:n
     end
     pause();
 
-%for l = 1:m
-%	ecg = sigf(1+(l-1)*fs*4:4*l*fs);
-%        downecg = ecg(1:fs/50:end);
-%        [HIL(l), SCA(5,l), dhilb(:,:,l)] = OAED_HILB(downecg, fs);
-%        [PSR(l), SCA(4,l), dpsr(:,:,l)] = OAED_PSR(downecg, fs);
-%end
-%
-%figure,
-%a = image();
-%for l = 1:m
-%	a.CData = dhilb(:,:,l)*255;
-%	title(l*4);
-%	drawnow
-%	pause(0.1)
-%end
-
-    %% Save results
-    %name = strcat( dat_list(k).name( 1 : find( dat_list(k).name == '.' ) -1 ) , '_rhythm.mat' );
-    %save(name, 'sig', 'fs', 'te', 'TCI', 'VF', 'TCSC', 'PSR', 'HIL', 'SCA');
 end

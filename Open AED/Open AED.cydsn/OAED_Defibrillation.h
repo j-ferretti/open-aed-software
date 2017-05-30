@@ -30,12 +30,12 @@
 
 #define OAED_DISCHARGE_TIME (- Patient_impedance * C * log( 1 - 2 * U/U_MAX ))
                                                                     // [s]
-#define OAED_DISCHARGE_TIME_MS 1000 * OAED_DISCHARGE_TIME           // [ms]
-#define OAED_DISCHARGE_TIME_US 1000 * OAED_DISCHARGE_TIMEms         // [us]
+#define OAED_DISCHARGE_TIME_MS (1000 * OAED_DISCHARGE_TIME)         // [ms]
+#define OAED_DISCHARGE_TIME_US (1000 * OAED_DISCHARGE_TIMEms)       // [us]
 /* End of numeric constants */
 
 /* Macro */
-#define OAED_HBridgeControl(phase) Phase_Reg_Write( phase )
+#define OAED_HBridgeControl(phase) (Phase_Reg_Write( phase ))
 /* End of Macro*/
 
 /* Function prototypes */

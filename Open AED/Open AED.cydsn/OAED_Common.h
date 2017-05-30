@@ -52,16 +52,16 @@
 #define ECG_SIGNAL_LENGTH       4            // Seconds of signal registered [s]
 #define ECG_SAMPLING_F          500          // Sampling frequency of ECG signal
                                              // [Hz]
-#define ECG_DATA_SIZE           ECG_SIGNAL_LENGTH * ECG_SAMPLING_F
+#define ECG_DATA_SIZE           (ECG_SIGNAL_LENGTH * ECG_SAMPLING_F)
                                              // Size of ECG data/buffer vectors
 /* Impedance */
 #define Z_SIGNAL_LENGTH         1            // Seconds of signal registered [s]
 #define Z_SAMPLING_F            4000         // Sampling frequency of Z signal
                                              // [Hz]
 #define Z_SIGNAL_F              250          // Excitation signal frequency [Hz]
-#define Z_PERIOD                Z_SAMPLING_F / Z_SIGNAL_F
+#define Z_PERIOD                (Z_SAMPLING_F / Z_SIGNAL_F)
                                              // No of samples per
-#define Z_DATA_SIZE             Z_SIGNAL_LENGTH * Z_SAMPLING_F
+#define Z_DATA_SIZE             (Z_SIGNAL_LENGTH * Z_SAMPLING_F)
                                              // Size of Z data/buffer vector
 #define Z_MIN                   25           // Minimum impedance [Ohm]
 #define Z_MAX                   180          // Maximum impedance [Ohm]
@@ -84,7 +84,7 @@
 /* End of numeric constants */
 
 /* Macro */
-#define OAED_PINCONTROL(on,pin) (on) ? CyPins_SetPin(pin) : CyPins_ClearPin(pin)
+#define OAED_PINCONTROL(on,pin)((on) ? CyPins_SetPin(pin) : CyPins_ClearPin(pin))
 #define OAED_SWAP(a,b)({ \
                         __typeof__(a) _a = (a); \
                         a = b; \
@@ -149,7 +149,10 @@ void OAED_ResetEvent();
 bool OAED_CheckFlags();
 
 bool OAED_EvaluateRhythm();
-bool OAED_EvaluateImpedance();
+
+bool OAED_EvaluateImpedanceAC();
+bool OAED_EvaluateImpedanceDC();
+bool OAED_ValidateImpedance(double);
 
 void OAED_EnableChargingCircuit();
 void OAED_DisableChargingCircuit();

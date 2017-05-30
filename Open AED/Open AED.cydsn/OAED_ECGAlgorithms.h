@@ -27,29 +27,29 @@
 
 #define TCI_MU_VF               105          // Maan TCI for VF [ms]
 #define TCI_SIGMA_VF            6.5          // Standard deviation for VF [ms]
-#define TCI_SIGMA2_VF           TCI_SIGMA_VF * TCI_SIGMA_VF
+#define TCI_SIGMA2_VF           (TCI_SIGMA_VF * TCI_SIGMA_VF)
 
 #define TCI_MU_VT               220          // Maan TCI for VT [ms]
 #define TCI_SIGMA_VT            16.5         // Standard deviation for VT [ms]
-#define TCI_SIGMA2_VT           TCI_SIGMA_VT * TCI_SIGMA_VT
+#define TCI_SIGMA2_VT           (TCI_SIGMA_VT * TCI_SIGMA_VT)
 
 #define TCI_ALFA                0.01         // Alfa
 #define TCI_BETA                0.01         // Beta
                                              // The next are just umeric
                                              // constants pre-calculated to ease
                                              // real-time evaluations.
-#define TCI_F_VT                2 * log((1-TCI_BETA) / TCI_ALFA)
-#define TCI_F_VF                2 * log(TCI_BETA / (1-TCI_ALFA))
-#define TCI_F_VX                2 * log(TCI_SIGMA_VT / TCI_SIGMA_VF)
+#define TCI_F_VT                (2 * log((1-TCI_BETA) / TCI_ALFA))
+#define TCI_F_VF                (2 * log(TCI_BETA / (1-TCI_ALFA)))
+#define TCI_F_VX                (2 * log(TCI_SIGMA_VT / TCI_SIGMA_VF))
 
 // VF filter
 #define VFf_CRIT                0.625       // Critical leakage
 
 // TCSC
 #define TCSC_Ls                 3           // Segment width [s]
-#define TCSC_NS                 ECG_SIGNAL_LENGTH - TCSC_Ls + 1
+#define TCSC_NS                 (ECG_SIGNAL_LENGTH - TCSC_Ls + 1)
                                             // Number of segments in one window
-#define TCSC_NTS                ECG_SIGNAL_LENGTH + TCSC_NS
+#define TCSC_NTS                (ECG_SIGNAL_LENGTH + TCSC_NS)
                                             // Total number of segments
 #define TCSC_THRESH             0.2         // TCSC binarization threshold
 #define TCSC_CRIT               0.48        // TCSC N critical value
@@ -61,7 +61,7 @@
 #define PSR_TAU                 0.5         // Tau [s]
 #define PSR_D0                  0.20        // Critical value
 #define PSR_GRID_N              40          // Grid divisions
-#define PSR_TAU_N               0.5 * ECG_SAMPLING_F
+#define PSR_TAU_N               (0.5 * ECG_SAMPLING_F)
 
 // HILB
 #define HILB_D0                 0.25        // Critical value
@@ -78,7 +78,7 @@
 /* End of numeric constants */
 
 /* Macro */
-#define OAED_TCSC_COSWIN(t)     0.5 * (1 - cos(4*PI*(t)) )
+#define OAED_TCSC_COSWIN(t)     (0.5 * (1 - cos(4*PI*(t)) ))
 /* End of macro */
 
 /* Variable definitions */

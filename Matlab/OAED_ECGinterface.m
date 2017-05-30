@@ -1,8 +1,11 @@
-clc
+%clc
 
 %%
 n = 0;
 m = 0;
+if (1 ~= exist('ECG'))
+    ECG = [];
+end
 while(true)
 
     in = input('in ');
@@ -14,13 +17,21 @@ while(true)
 
     for k = 1:in
         psoc.message = 'a';
-        pause(0.05);
         psoc.send;
         pause(0.1);
+
         tmp = psoc.receive;
-        ecg = [ecg tmp];
-        %tmp = psoc.receive;
-        %ecg = [ecg tmp];
+        ECG = [ECG tmp];
+        tmp = psoc.receive;
+        ECG = [ECG tmp];
+
+%        tmp = psoc.receive;
+%        Z = [Z tmp];
+%        tmp = psoc.receive;
+%        Z = [Z tmp];
+
+        tmp = psoc.receive;
+        disp(tmp);
         n = n+1;
 
         if(psoc.message == 'A')
@@ -30,9 +41,11 @@ while(true)
         end
 
         disp(n);
-        t = [1:length(ecg)]/500;
-        plot(t, ecg)
+        t = [1:length(ECG)]/4000;
+        plot(t, ECG)
     end
 
     break;
 end
+
+clear m n in k tmp

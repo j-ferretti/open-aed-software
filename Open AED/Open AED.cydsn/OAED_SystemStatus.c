@@ -26,13 +26,12 @@ char OAED_LeadOffMode(){
         OAED_AcquisitionECGStop();
 
     /* Then the system lock until leads are attached again. */
-    //OAED_WaitLeadOn();         // DISABLED DEBUG PURPOSE ONLY //
+    OAED_WaitLeadOn();
 
     /* Another layer of protection is to evaluate the patient impedance. */
-    /*                           // DISABLED DEBUG PURPOSE ONLY //
+
     if(OAED_WaitForZ())
         return measurement_mode;
-    */
 
     /* Leads detected */
     if(lead_detected){

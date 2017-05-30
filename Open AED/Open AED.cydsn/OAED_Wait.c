@@ -12,9 +12,10 @@
 
 /* Function declarations */
 
- // NEED REWORK //  // NEED REWORK //  // NEED REWORK //  // NEED REWORK //
+
 void OAED_WaitLeadOn(){
     /* ~~~ WARNING: THIS IS A BLOCKING FUNCTION ~~~ */
+    /* ~~~ EXTRA WARNING: THIS ONLY WORK FOR DC LEAD OFF DETECTION ~~~ */
 
     /* This function wait indefinitely until the electrodes are attached to */
     /* the patient. */
@@ -36,7 +37,6 @@ void OAED_WaitLeadOn(){
         OAED_Led(false, false, false, yellow_led);
     }
 }
- // NEED REWORK //  // NEED REWORK //  // NEED REWORK //  // NEED REWORK //
 
 bool OAED_WaitForData(){
     /* ~~~ WARNING: THIS IS A BLOCKING FUNCTION ~~~ */
@@ -51,7 +51,7 @@ bool OAED_WaitForData(){
         /* Check for z Data */
         if(Z_buffer_full){
             OAED_CopyZBuffer();
-            if(!OAED_EvaluateImpedance())
+            if(!OAED_EvaluateImpedanceDC())
                 return false;
             OAED_AcquisitionZ();
         }
@@ -81,7 +81,7 @@ bool OAED_WaitForZ(){
     OAED_CopyZBuffer();
 
     /* Evaluate data and return true if a lead-on is assumed. */
-    return OAED_EvaluateImpedance();
+    return OAED_EvaluateImpedanceDC();
 }
 
 bool OAED_WaitForCap(){
@@ -95,7 +95,7 @@ bool OAED_WaitForCap(){
         /* Check for new Z data */
         if(Z_buffer_full){
             OAED_CopyZBuffer();
-            if(!OAED_EvaluateImpedance())
+            if(!OAED_EvaluateImpedanceDC())
                 return false;
             OAED_AcquisitionZ();
         }
